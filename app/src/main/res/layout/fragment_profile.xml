@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".data.fragment.ProfileFragment"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="Kembali"
+        android:layout_margin="16dp"
+        app:srcCompat="@drawable/ic_icon_back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/btnLogout"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="Logout"
+        android:layout_margin="16dp"
+        app:srcCompat="@drawable/ic_logout"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Header -->
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/btnBack"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/titleProfile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profil"
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:textColor="#000000"
+                android:layout_marginTop="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:gravity="center" />
+
+            <!-- Foto -->
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:scaleType="centerCrop"
+                android:padding="4dp"
+                app:srcCompat="@drawable/profile" />
+
+            <!-- Nama -->
+            <TextView
+                android:id="@+id/nameProfile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bambang Bengkel"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_marginTop="8dp" />
+
+            <!-- Email -->
+            <TextView
+                android:id="@+id/emailProfile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="bambangbengkel@gmail.com"
+                android:textSize="15sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Card Informasi -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp"
+                android:layout_marginBottom="24dp">
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <!-- Field -->
+                    <TextView android:text="NIK" style="@style/ProfileLabel"/>
+                    <TextView android:text="2348855" style="@style/ProfileValue"/>
+
+                    <TextView android:text="Tempat, Tgl Lahir" style="@style/ProfileLabel"/>
+                    <TextView android:text="Cawang, 19 Mei 1945" style="@style/ProfileValue"/>
+
+                    <TextView android:text="No. Telepon" style="@style/ProfileLabel"/>
+                    <TextView android:text="08352348855" style="@style/ProfileValue"/>
+
+                    <TextView android:text="Alamat" style="@style/ProfileLabel"/>
+                    <TextView android:text="Jalan Jalan ke Balige" style="@style/ProfileValue"/>
+
+                    <TextView android:text="Ibu Kandung" style="@style/ProfileLabel"/>
+                    <TextView android:text="Nikita Ting Ting" style="@style/ProfileValue"/>
+
+                    <TextView android:text="Pekerjaan" style="@style/ProfileLabel"/>
+                    <TextView android:text="Maling Pangsit" style="@style/ProfileValue"/>
+
+                    <TextView android:text="Gaji" style="@style/ProfileLabel"/>
+                    <TextView android:text="Rp. 15.000.000" style="@style/ProfileValue"/>
+
+                    <TextView android:text="No. Rekening" style="@style/ProfileLabel"/>
+                    <TextView android:text="9876543" style="@style/ProfileValue"/>
+
+                    <TextView android:text="Status Rumah" style="@style/ProfileLabel"/>
+                    <TextView android:text="Online" style="@style/ProfileValue"/>
+                </GridLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Tombol Edit -->
+            <Button
+                android:id="@+id/btnEditProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_button_gradient"
+                android:padding="14dp"
+                android:text="Edit Profile"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:fontFamily="sans-serif-medium" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="45dp" />
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

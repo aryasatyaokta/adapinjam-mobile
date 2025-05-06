@@ -9,6 +9,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.fragment.HistoryPinjamanFragment
 import id.co.bcaf.adapinjam.data.fragment.HomeFragment
+import id.co.bcaf.adapinjam.data.fragment.ProfileFragment
 import id.co.bcaf.adapinjam.data.fragment.RiwayatFragment
 import id.co.bcaf.adapinjam.ui.pengajuan.PengajuanActivity
 
@@ -20,12 +21,10 @@ class HomeActivity : AppCompatActivity() {
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
 
-        // Tampilkan HomeFragment saat pertama kali
         if (savedInstanceState == null) {
             loadFragment(HomeFragment())
         }
 
-        // Listener untuk bottom navigation
         bottomNavigationView.setOnNavigationItemSelectedListener() { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
@@ -38,6 +37,10 @@ class HomeActivity : AppCompatActivity() {
                 }
                 R.id.nav_pinjaman -> {
                     loadFragment(HistoryPinjamanFragment())
+                    true
+                }
+                R.id.nav_akun -> {
+                    loadFragment(ProfileFragment())
                     true
                 }
                 // Tambahkan menu lainnya jika perlu
