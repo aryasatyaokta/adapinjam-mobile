@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import id.co.bcaf.adapinjam.R
+import id.co.bcaf.adapinjam.data.fragment.HistoryPinjamanFragment
 import id.co.bcaf.adapinjam.data.fragment.HomeFragment
 import id.co.bcaf.adapinjam.data.fragment.RiwayatFragment
 import id.co.bcaf.adapinjam.ui.pengajuan.PengajuanActivity
@@ -33,6 +34,10 @@ class HomeActivity : AppCompatActivity() {
                 }
                 R.id.nav_riwayat -> {
                     loadFragment(RiwayatFragment())
+                    true
+                }
+                R.id.nav_pinjaman -> {
+                    loadFragment(HistoryPinjamanFragment())
                     true
                 }
                 // Tambahkan menu lainnya jika perlu
