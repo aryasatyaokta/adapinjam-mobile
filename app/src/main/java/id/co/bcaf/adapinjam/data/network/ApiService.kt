@@ -1,12 +1,11 @@
 package id.co.bcaf.adapinjam.data.network
 
+import id.co.bcaf.adapinjam.data.model.*
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
-import id.co.bcaf.adapinjam.data.model.LoginRequest
-import id.co.bcaf.adapinjam.data.model.LoginResponse
-import id.co.bcaf.adapinjam.data.model.RegisterRequest
-import id.co.bcaf.adapinjam.data.model.RegisterResponse
+import retrofit2.http.GET
+import retrofit2.http.Header
 
 interface ApiService {
     @POST("api/v1/auth/login")
@@ -14,4 +13,8 @@ interface ApiService {
 
     @POST("api/v1/auth/register-customer")
     suspend fun register(@Body request: RegisterRequest): Response<RegisterResponse>
+
+    @GET("api/v1/customer/get-customer")
+    suspend fun getCustomerProfile(@Header("Authorization") token: String): Response<UserCustomerResponse>
+
 }

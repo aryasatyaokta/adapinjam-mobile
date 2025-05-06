@@ -10,31 +10,29 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import id.co.bcaf.adapinjam.R
-import id.co.bcaf.adapinjam.data.model.LoginRequest
-import id.co.bcaf.adapinjam.data.model.LoginResponse
 import id.co.bcaf.adapinjam.ui.home.HomeActivity
 import id.co.bcaf.adapinjam.ui.register.RegisterActivity
-import id.co.bcaf.adapinjam.data.utils.RetrofitClient
+import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
+import id.co.bcaf.adapinjam.data.viewModel.LoginViewModel
 import kotlinx.coroutines.launch
-import retrofit2.Response
 import android.app.ProgressDialog
 import android.graphics.Color
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
-import id.co.bcaf.adapinjam.data.viewModel.LoginViewModel
-
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var progressDialog: ProgressDialog
+    private lateinit var sharedPrefManager: SharedPrefManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
         loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
+        sharedPrefManager = SharedPrefManager(this)
 
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val edtUsername = findViewById<EditText>(R.id.Email)
@@ -44,14 +42,11 @@ class LoginActivity : AppCompatActivity() {
         progressDialog.setMessage("Logging in...")
         progressDialog.setCancelable(false)
 
-        // Observe login result
         loginViewModel.loginResult.observe(this) { result ->
             progressDialog.dismiss()
             result.onSuccess { token ->
-                // Simpan token
-                getSharedPreferences("MyPrefs", MODE_PRIVATE).edit()
-                    .putString("auth_token", token)
-                    .apply()
+                sharedPrefManager.setToken(token)
+                Log.d("LoginActivity", "Token disimpan: $token")
 
                 showSnackbar(findViewById(android.R.id.content), "Login berhasil")
 
@@ -97,4 +92,3 @@ class LoginActivity : AppCompatActivity() {
         snackbar.show()
     }
 }
-

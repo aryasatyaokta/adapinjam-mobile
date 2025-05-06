@@ -71,12 +71,20 @@
                 android:padding="4dp"
                 app:srcCompat="@drawable/profile" />
 
+            <ProgressBar
+                android:id="@+id/loadingProfile"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminateTint="@color/blue_start"
+                android:visibility="gone" />
+
             <!-- Nama -->
             <TextView
                 android:id="@+id/nameProfile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bambang Bengkel"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="#000000"
@@ -87,7 +95,6 @@
                 android:id="@+id/emailProfile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="bambangbengkel@gmail.com"
                 android:textSize="15sp"
                 android:textColor="#666666"
                 android:layout_marginBottom="24dp" />
@@ -109,31 +116,31 @@
 
                     <!-- Field -->
                     <TextView android:text="NIK" style="@style/ProfileLabel"/>
-                    <TextView android:text="2348855" style="@style/ProfileValue"/>
+                    <TextView android:id="@+id/nik" style="@style/ProfileValue"/>
 
                     <TextView android:text="Tempat, Tgl Lahir" style="@style/ProfileLabel"/>
-                    <TextView android:text="Cawang, 19 Mei 1945" style="@style/ProfileValue"/>
+                    <TextView android:id="@+id/tempatTglLahir" style="@style/ProfileValue"/>
 
                     <TextView android:text="No. Telepon" style="@style/ProfileLabel"/>
-                    <TextView android:text="08352348855" style="@style/ProfileValue"/>
+                    <TextView android:id="@+id/noTelp" style="@style/ProfileValue"/>
 
                     <TextView android:text="Alamat" style="@style/ProfileLabel"/>
-                    <TextView android:text="Jalan Jalan ke Balige" style="@style/ProfileValue"/>
+                    <TextView android:id="@+id/alamat" style="@style/ProfileValue"/>
 
                     <TextView android:text="Ibu Kandung" style="@style/ProfileLabel"/>
-                    <TextView android:text="Nikita Ting Ting" style="@style/ProfileValue"/>
+                    <TextView android:id="@+id/namaIbu" style="@style/ProfileValue"/>
 
                     <TextView android:text="Pekerjaan" style="@style/ProfileLabel"/>
-                    <TextView android:text="Maling Pangsit" style="@style/ProfileValue"/>
+                    <TextView android:id="@+id/pekerjaan" style="@style/ProfileValue"/>
 
                     <TextView android:text="Gaji" style="@style/ProfileLabel"/>
-                    <TextView android:text="Rp. 15.000.000" style="@style/ProfileValue"/>
+                    <TextView android:id="@+id/gaji" style="@style/ProfileValue"/>
 
                     <TextView android:text="No. Rekening" style="@style/ProfileLabel"/>
-                    <TextView android:text="9876543" style="@style/ProfileValue"/>
+                    <TextView android:id="@+id/noRekening" style="@style/ProfileValue"/>
 
                     <TextView android:text="Status Rumah" style="@style/ProfileLabel"/>
-                    <TextView android:text="Online" style="@style/ProfileValue"/>
+                    <TextView android:id="@+id/statusRumah" style="@style/ProfileValue"/>
                 </GridLayout>
             </androidx.cardview.widget.CardView>
 

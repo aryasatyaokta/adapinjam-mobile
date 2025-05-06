@@ -14,16 +14,21 @@ import com.google.android.material.snackbar.Snackbar
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.ui.home.HomeActivity
 import id.co.bcaf.adapinjam.ui.login.LoginActivity
+import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
 import id.co.bcaf.adapinjam.data.viewModel.RegisterViewModel
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var registerViewModel: RegisterViewModel
     private lateinit var progressDialog: ProgressDialog
+    private lateinit var sharedPrefManager: SharedPrefManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+
+        // Initialize SharedPrefManager
+        sharedPrefManager = SharedPrefManager(this)
 
         registerViewModel = ViewModelProvider(this)[RegisterViewModel::class.java]
 
@@ -39,10 +44,8 @@ class RegisterActivity : AppCompatActivity() {
         registerViewModel.registerResult.observe(this) { result ->
             progressDialog.dismiss()
             result.onSuccess { token ->
-                getSharedPreferences("MyPrefs", MODE_PRIVATE).edit()
-                    .putString("auth_token", token)
-                    .apply()
-
+                // ✅ Simpan token pakai SharedPrefManager
+                sharedPrefManager.setToken(token)
                 showSnackbar(findViewById(android.R.id.content), "Registrasi berhasil")
 
                 startActivity(Intent(this, HomeActivity::class.java))
