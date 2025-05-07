@@ -1,6 +1,7 @@
 package id.co.bcaf.adapinjam.data.network
 
 import id.co.bcaf.adapinjam.data.model.*
+import okhttp3.Call
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -29,6 +30,7 @@ interface ApiService {
         @Body customerRequest: UserCustomerRequest
     ): Response<UserCustomerResponse>
 
-
+    @POST("api/v1/auth/logout")
+    suspend fun logout(@Header("Authorization") token: String): Response<Void>
 
 }

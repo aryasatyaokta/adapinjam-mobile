@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.ui.adddetailcustomer.AddDetail
+import id.co.bcaf.adapinjam.utils.setupPasswordToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -42,6 +43,8 @@ class LoginActivity : AppCompatActivity() {
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val edtUsername = findViewById<EditText>(R.id.Email)
         val edtPassword = findViewById<EditText>(R.id.Password)
+
+        edtPassword.setupPasswordToggle()
 
         progressDialog = ProgressDialog(this)
         progressDialog.setMessage("Logging in...")
@@ -96,4 +99,5 @@ class LoginActivity : AppCompatActivity() {
         snackbar.setTextColor(Color.WHITE)
         snackbar.show()
     }
+
 }

@@ -1,9 +1,11 @@
 package id.co.bcaf.adapinjam.data.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -12,8 +14,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
+import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
 import id.co.bcaf.adapinjam.data.viewModel.ProfileViewModel
+import id.co.bcaf.adapinjam.ui.login.LoginActivity
+import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {
 
@@ -63,6 +68,12 @@ class ProfileFragment : Fragment() {
 
         loadingProfile = view.findViewById(R.id.loadingProfile)
 
+        val btnLogout = view.findViewById<ImageView>(R.id.btnLogout)
+        btnLogout.setOnClickListener {
+            showLogoutConfirmation()
+        }
+
+
         profileViewModel.profileData.observe(viewLifecycleOwner) { profile ->
             loadingProfile.visibility = View.GONE
             if (profile != null) {
@@ -107,4 +118,47 @@ class ProfileFragment : Fragment() {
         noRekening.text = profile.noRek ?: "-"
         statusRumah.text = profile.statusRumah ?: "-"
     }
+
+    private fun performLogout() {
+        val token = sharedPrefManager.getToken()
+        if (token != null) {
+            lifecycleScope.launch {
+                try {
+                    val response = RetrofitClient.apiService.logout("Bearer $token")
+                    if (response.isSuccessful) {
+                        // Clear token and navigate to LoginActivity
+                        sharedPrefManager.clearToken() // Clear all saved data (token, etc.)
+                        Toast.makeText(context, "Logout berhasil", Toast.LENGTH_SHORT).show()
+
+                        // Arahkan ke LoginActivity
+                        val intent = Intent(requireContext(), LoginActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(context, "Logout gagal", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            Toast.makeText(context, "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showLogoutConfirmation() {
+        val builder = android.app.AlertDialog.Builder(requireContext())
+        builder.setTitle("Konfirmasi Logout")
+        builder.setMessage("Apakah Anda ingin keluar aplikasi?")
+        builder.setPositiveButton("Ya") { dialog, _ ->
+            dialog.dismiss()
+            performLogout()
+        }
+        builder.setNegativeButton("Batal") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.show()
+    }
+
+
 }
