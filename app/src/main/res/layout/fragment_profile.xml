@@ -107,47 +107,52 @@
                 app:cardElevation="6dp"
                 android:layout_marginBottom="24dp">
 
-                <GridLayout
+                <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:columnCount="2"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:scrollbars="horizontal">
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="2"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
 
-                    <!-- Field -->
-                    <TextView android:text="NIK" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/nik" style="@style/ProfileValue"/>
+                        <!-- Field -->
+                        <TextView android:text="NIK" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/nik" style="@style/ProfileValue"/>
 
-                    <TextView android:text="Tempat Lahir" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/tempatLahir" style="@style/ProfileValue"/>
+                        <TextView android:text="Tempat Lahir" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/tempatLahir" style="@style/ProfileValue"/>
 
-                    <TextView android:text="Tanggal Lahir" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/tanggalLahir" style="@style/ProfileValue"/>
+                        <TextView android:text="Tanggal Lahir" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/tanggalLahir" style="@style/ProfileValue"/>
 
-                    <TextView android:text="Jenis Kelamin" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/jenisKelamin" style="@style/ProfileValue"/>
+                        <TextView android:text="Jenis Kelamin" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/jenisKelamin" style="@style/ProfileValue"/>
 
-                    <TextView android:text="No. Telepon" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/noTelp" style="@style/ProfileValue"/>
+                        <TextView android:text="No. Telepon" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/noTelp" style="@style/ProfileValue"/>
 
-                    <TextView android:text="Alamat" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/alamat" style="@style/ProfileValue"/>
+                        <TextView android:text="Alamat" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/alamat" style="@style/ProfileValue"/>
 
-                    <TextView android:text="Ibu Kandung" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/namaIbu" style="@style/ProfileValue"/>
+                        <TextView android:text="Ibu Kandung" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/namaIbu" style="@style/ProfileValue"/>
 
-                    <TextView android:text="Pekerjaan" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/pekerjaan" style="@style/ProfileValue"/>
+                        <TextView android:text="Pekerjaan" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/pekerjaan" style="@style/ProfileValue"/>
 
-                    <TextView android:text="Gaji" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/gaji" style="@style/ProfileValue"/>
+                        <TextView android:text="Gaji" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/gaji" style="@style/ProfileValue"/>
 
-                    <TextView android:text="No. Rekening" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/noRekening" style="@style/ProfileValue"/>
+                        <TextView android:text="No. Rekening" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/noRekening" style="@style/ProfileValue"/>
 
-                    <TextView android:text="Status Rumah" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/statusRumah" style="@style/ProfileValue"/>
-                </GridLayout>
+                        <TextView android:text="Status Rumah" style="@style/ProfileLabel"/>
+                        <TextView android:id="@+id/statusRumah" style="@style/ProfileValue"/>
+                    </GridLayout>
+                </HorizontalScrollView>
             </androidx.cardview.widget.CardView>
 
             <!-- Tombol Edit -->

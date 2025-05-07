@@ -55,10 +55,8 @@ class LoginActivity : AppCompatActivity() {
 
                 showSnackbar(findViewById(android.R.id.content), "Login berhasil")
 
-                checkProfileStatus() // panggil fungsi ini
-
-//                startActivity(Intent(this, HomeActivity::class.java))
-//                finish()
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
             }
             result.onFailure { e ->
                 showSnackbar(findViewById(android.R.id.content), e.message ?: "Login gagal", isError = true)
@@ -98,65 +96,4 @@ class LoginActivity : AppCompatActivity() {
         snackbar.setTextColor(Color.WHITE)
         snackbar.show()
     }
-
-    private fun checkProfileStatus() {
-        val token = sharedPrefManager.getToken()
-
-        if (token.isNullOrEmpty()) {
-            Toast.makeText(this, "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        lifecycleScope.launch {
-            try {
-                val response = withContext(Dispatchers.IO) {
-                    RetrofitClient.apiService.checkProfile("Bearer $token")
-                }
-
-                withContext(Dispatchers.Main) {
-                    when {
-                        response.isSuccessful -> {
-                            // Pastikan LoginActivity masih aktif dan belum dihancurkan
-                            if (!isFinishing && !isDestroyed) {
-                                // Profile lengkap, lanjutkan ke HomeActivity
-                                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
-                                finish()
-                            }
-                        }
-
-                        response.code() == 428 -> {
-                            // Profile belum lengkap
-                            if (!isFinishing && !isDestroyed) {
-                                AlertDialog.Builder(this@LoginActivity)
-                                    .setTitle("Lengkapi Profil")
-                                    .setMessage("Profil Anda belum lengkap. Silakan lengkapi terlebih dahulu.")
-                                    .setPositiveButton("Lengkapi Sekarang") { _, _ ->
-                                        startActivity(Intent(this@LoginActivity, AddDetail::class.java))
-                                    }
-                                    .setCancelable(false)
-                                    .show()
-                            }
-                        }
-
-                        else -> {
-                            Toast.makeText(
-                                this@LoginActivity,
-                                "Gagal memeriksa status profil: ${response.code()}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    if (!isFinishing && !isDestroyed) {
-                        Toast.makeText(this@LoginActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }
-    }
-
-
-
 }

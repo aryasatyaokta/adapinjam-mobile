@@ -252,7 +252,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/ajukanButton"
+                app:layout_constraintEnd_toStartOf="@id/btnAjukanPinjaman"
                 android:layout_marginEnd="12dp">
 
                 <TextView
@@ -273,7 +273,7 @@
 
             <!-- Tombol Ajukan Pinjaman -->
             <Button
-                android:id="@+id/ajukanButton"
+                android:id="@+id/btnAjukanPinjaman"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Ajukan Pinjaman"

@@ -23,5 +23,12 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<ResponseBody>
 
+    @POST("api/v1/customer/add-customer-details")
+    suspend fun addCustomerDetails(
+        @Header("Authorization") token: String,
+        @Body customerRequest: UserCustomerRequest
+    ): Response<UserCustomerResponse>
+
+
 
 }
