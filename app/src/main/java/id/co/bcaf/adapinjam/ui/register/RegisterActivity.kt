@@ -16,6 +16,7 @@ import id.co.bcaf.adapinjam.ui.home.HomeActivity
 import id.co.bcaf.adapinjam.ui.login.LoginActivity
 import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
 import id.co.bcaf.adapinjam.data.viewModel.RegisterViewModel
+import id.co.bcaf.adapinjam.utils.setupPasswordToggle
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -36,6 +37,8 @@ class RegisterActivity : AppCompatActivity() {
         val edtUsername = findViewById<EditText>(R.id.Email)
         val edtPassword = findViewById<EditText>(R.id.Password)
         val edtName = findViewById<EditText>(R.id.Name)
+
+        edtPassword.setupPasswordToggle()
 
         progressDialog = ProgressDialog(this)
         progressDialog.setMessage("Registering...")

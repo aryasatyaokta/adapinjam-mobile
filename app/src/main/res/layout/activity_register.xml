@@ -92,10 +92,11 @@
         android:padding="14dp"
         android:textColor="#000000"
         android:drawableStart="@drawable/iconpassword"
+        android:drawableEnd="@drawable/ic_visibility_off"
         android:drawablePadding="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/Email"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintWidth_percent="0.9" />
 
     <Button
