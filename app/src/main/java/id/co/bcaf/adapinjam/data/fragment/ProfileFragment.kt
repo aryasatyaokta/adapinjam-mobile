@@ -1,7 +1,6 @@
 package id.co.bcaf.adapinjam.data.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,23 +8,25 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
-import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import id.co.bcaf.adapinjam.data.viewModel.ProfileViewModel
 
 class ProfileFragment : Fragment() {
 
+    private lateinit var profileViewModel: ProfileViewModel
     private lateinit var sharedPrefManager: SharedPrefManager
+
     private lateinit var nameProfile: TextView
     private lateinit var emailProfile: TextView
 
     private lateinit var nik: TextView
-    private lateinit var tempatTglLahir: TextView
+    private lateinit var tempatLahir: TextView
+    private lateinit var tanggalLahir: TextView
+    private lateinit var jenisKelamin: TextView
     private lateinit var noTelp: TextView
     private lateinit var alamat: TextView
     private lateinit var namaIbu: TextView
@@ -43,12 +44,15 @@ class ProfileFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
         sharedPrefManager = SharedPrefManager(requireContext())
+        profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
 
         nameProfile = view.findViewById(R.id.nameProfile)
         emailProfile = view.findViewById(R.id.emailProfile)
 
         nik = view.findViewById(R.id.nik)
-        tempatTglLahir = view.findViewById(R.id.tempatTglLahir)
+        tempatLahir = view.findViewById(R.id.tempatLahir)
+        tanggalLahir = view.findViewById(R.id.tanggalLahir)
+        jenisKelamin = view.findViewById(R.id.jenisKelamin)
         noTelp = view.findViewById(R.id.noTelp)
         alamat = view.findViewById(R.id.alamat)
         namaIbu = view.findViewById(R.id.namaIbu)
@@ -59,6 +63,20 @@ class ProfileFragment : Fragment() {
 
         loadingProfile = view.findViewById(R.id.loadingProfile)
 
+        profileViewModel.profileData.observe(viewLifecycleOwner) { profile ->
+            loadingProfile.visibility = View.GONE
+            if (profile != null) {
+                updateUI(profile)
+            } else {
+                Toast.makeText(context, "Gagal ambil data profil", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        profileViewModel.error.observe(viewLifecycleOwner) { error ->
+            loadingProfile.visibility = View.GONE
+            Toast.makeText(context, "Error: $error", Toast.LENGTH_SHORT).show()
+        }
+
         getProfileData()
 
         return view
@@ -66,46 +84,27 @@ class ProfileFragment : Fragment() {
 
     private fun getProfileData() {
         val token = sharedPrefManager.getToken()
-        Log.d("ProfileFragment", "Token: $token")
-
-        if (token == null) {
+        if (token != null) {
+            loadingProfile.visibility = View.VISIBLE
+            profileViewModel.fetchProfileData("Bearer $token")
+        } else {
             Toast.makeText(context, "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        loadingProfile.visibility = View.VISIBLE
-
-        lifecycleScope.launch {
-            try {
-                val response = withContext(Dispatchers.IO) {
-                    RetrofitClient.apiService.getCustomerProfile("Bearer $token")
-                }
-
-                if (response.isSuccessful) {
-                    val data: UserCustomerResponse? = response.body()
-                    data?.let { updateUI(it) }
-                } else {
-                    Toast.makeText(context, "Gagal ambil data profil", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            } finally {
-                loadingProfile.visibility = View.GONE
-            }
         }
     }
 
-    private fun updateUI(data: UserCustomerResponse) {
-        nameProfile.text = data.user?.name ?: "-"
-        emailProfile.text = data.user?.email ?: "-"
-        nik.text = data.nik ?: "-"
-        tempatTglLahir.text = data.tempatTglLahir ?: "-"
-        noTelp.text = data.noTelp ?: "-"
-        alamat.text = data.alamat ?: "-"
-        namaIbu.text = data.namaIbuKandung ?: "-"
-        pekerjaan.text = data.pekerjaan ?: "-"
-        gaji.text = data.gaji ?: "-"
-        noRekening.text = data.noRek ?: "-"
-        statusRumah.text = data.statusRumah ?: "-"
+    private fun updateUI(profile: UserCustomerResponse) {
+        nameProfile.text = profile.user?.name ?: "-"
+        emailProfile.text = profile.user?.email ?: "-"
+        nik.text = profile.nik ?: "-"
+        tempatLahir.text = profile.tempatLahir ?: "-"
+        tanggalLahir.text = profile.tanggalLahir ?: "-"
+        jenisKelamin.text = profile.jenisKelamin ?: "-"
+        noTelp.text = profile.noTelp ?: "-"
+        alamat.text = profile.alamat ?: "-"
+        namaIbu.text = profile.namaIbuKandung ?: "-"
+        pekerjaan.text = profile.pekerjaan ?: "-"
+        gaji.text = profile.gaji ?: "-"
+        noRekening.text = profile.noRek ?: "-"
+        statusRumah.text = profile.statusRumah ?: "-"
     }
 }

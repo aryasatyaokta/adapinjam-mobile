@@ -118,8 +118,14 @@
                     <TextView android:text="NIK" style="@style/ProfileLabel"/>
                     <TextView android:id="@+id/nik" style="@style/ProfileValue"/>
 
-                    <TextView android:text="Tempat, Tgl Lahir" style="@style/ProfileLabel"/>
-                    <TextView android:id="@+id/tempatTglLahir" style="@style/ProfileValue"/>
+                    <TextView android:text="Tempat Lahir" style="@style/ProfileLabel"/>
+                    <TextView android:id="@+id/tempatLahir" style="@style/ProfileValue"/>
+
+                    <TextView android:text="Tanggal Lahir" style="@style/ProfileLabel"/>
+                    <TextView android:id="@+id/tanggalLahir" style="@style/ProfileValue"/>
+
+                    <TextView android:text="Jenis Kelamin" style="@style/ProfileLabel"/>
+                    <TextView android:id="@+id/jenisKelamin" style="@style/ProfileValue"/>
 
                     <TextView android:text="No. Telepon" style="@style/ProfileLabel"/>
                     <TextView android:id="@+id/noTelp" style="@style/ProfileValue"/>
