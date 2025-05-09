@@ -8,6 +8,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PUT
 
 interface ApiService {
     @POST("api/v1/auth/login")
@@ -33,4 +34,18 @@ interface ApiService {
     @POST("api/v1/auth/logout")
     suspend fun logout(@Header("Authorization") token: String): Response<Void>
 
+    @GET("api/v1/plafon")
+    suspend fun getAllPlafon(): Response<List<Plafon>>
+
+    @PUT("api/v1/customer/edit-customer-details")
+    suspend fun editCustomerDetails(
+        @Header("Authorization") token: String,
+        @Body request: UserCustomerRequest
+    ): Response<UserCustomerResponse>
+
+    @PUT("api/v1/auth/update-password")
+    suspend fun updatePassword(
+        @Header("Authorization") token: String,
+        @Body request: UpdatePasswordRequest
+    ): Response<String>
 }

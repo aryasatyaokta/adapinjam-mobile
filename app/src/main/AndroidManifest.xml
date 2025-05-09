@@ -14,7 +14,25 @@
         android:theme="@style/Theme.AdaPinjam"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".ui.profile.ProfileActivity"
+            android:name=".ui.password.UpdatePasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.EditProfil.EditProfilActivity"
+            android:exported="false" />
+
+        <service
+            android:name=".data.network.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".ui.plafon.PlafonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.profile.ProfilSayaActivity"
             android:exported="false" />
         <activity
             android:name=".ui.adddetailcustomer.AddDetail"

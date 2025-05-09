@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "544904337448",
+    "project_id": "adapinjam-7976e",
+    "storage_bucket": "adapinjam-7976e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:544904337448:android:adc6c8e695f871e26abd1d",
+        "android_client_info": {
+          "package_name": "id.co.bcaf.adapinjam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB83VGZJJJ3q3C4bTnRG7JGbij-Wa786Cs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

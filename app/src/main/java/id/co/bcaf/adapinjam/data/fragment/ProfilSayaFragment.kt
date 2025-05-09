@@ -17,10 +17,13 @@ import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
 import id.co.bcaf.adapinjam.data.viewModel.ProfileViewModel
+import id.co.bcaf.adapinjam.ui.EditProfil.EditProfilActivity
 import id.co.bcaf.adapinjam.ui.login.LoginActivity
+import id.co.bcaf.adapinjam.ui.profile.ProfilActivity
 import kotlinx.coroutines.launch
+import kotlin.jvm.java
 
-class ProfileFragment : Fragment() {
+class ProfilSayaFragment : Fragment() {
 
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var sharedPrefManager: SharedPrefManager
@@ -39,14 +42,18 @@ class ProfileFragment : Fragment() {
     private lateinit var gaji: TextView
     private lateinit var noRekening: TextView
     private lateinit var statusRumah: TextView
-
+    private lateinit var btnBack: ImageView
     private lateinit var loadingProfile: ProgressBar
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_profile, container, false)
+        return inflater.inflate(R.layout.fragment_profil_saya, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         sharedPrefManager = SharedPrefManager(requireContext())
         profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
@@ -65,14 +72,24 @@ class ProfileFragment : Fragment() {
         gaji = view.findViewById(R.id.gaji)
         noRekening = view.findViewById(R.id.noRekening)
         statusRumah = view.findViewById(R.id.statusRumah)
+        btnBack = view.findViewById(R.id.btnBack)
 
         loadingProfile = view.findViewById(R.id.loadingProfile)
 
-        val btnLogout = view.findViewById<ImageView>(R.id.btnLogout)
-        btnLogout.setOnClickListener {
-            showLogoutConfirmation()
+        val btnEdit = view.findViewById<View>(R.id.btnEditProfile)
+        btnEdit.setOnClickListener {
+            Toast.makeText(requireContext(), "Tombol diklik", Toast.LENGTH_SHORT).show()
+            val token = sharedPrefManager.getToken()
+            val intent = Intent(requireContext(), EditProfilActivity::class.java)
+            intent.putExtra("token", token)
+            startActivity(intent)
         }
 
+        btnBack.setOnClickListener {
+            val intent = Intent(requireContext(), ProfilActivity::class.java)
+            startActivity(intent)
+            requireActivity().finish()
+        }
 
         profileViewModel.profileData.observe(viewLifecycleOwner) { profile ->
             loadingProfile.visibility = View.GONE
@@ -89,8 +106,6 @@ class ProfileFragment : Fragment() {
         }
 
         getProfileData()
-
-        return view
     }
 
     private fun getProfileData() {
@@ -118,47 +133,5 @@ class ProfileFragment : Fragment() {
         noRekening.text = profile.noRek ?: "-"
         statusRumah.text = profile.statusRumah ?: "-"
     }
-
-    private fun performLogout() {
-        val token = sharedPrefManager.getToken()
-        if (token != null) {
-            lifecycleScope.launch {
-                try {
-                    val response = RetrofitClient.apiService.logout("Bearer $token")
-                    if (response.isSuccessful) {
-                        // Clear token and navigate to LoginActivity
-                        sharedPrefManager.clearToken() // Clear all saved data (token, etc.)
-                        Toast.makeText(context, "Logout berhasil", Toast.LENGTH_SHORT).show()
-
-                        // Arahkan ke LoginActivity
-                        val intent = Intent(requireContext(), LoginActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                    } else {
-                        Toast.makeText(context, "Logout gagal", Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } else {
-            Toast.makeText(context, "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun showLogoutConfirmation() {
-        val builder = android.app.AlertDialog.Builder(requireContext())
-        builder.setTitle("Konfirmasi Logout")
-        builder.setMessage("Apakah Anda ingin keluar aplikasi?")
-        builder.setPositiveButton("Ya") { dialog, _ ->
-            dialog.dismiss()
-            performLogout()
-        }
-        builder.setNegativeButton("Batal") { dialog, _ ->
-            dialog.dismiss()
-        }
-        builder.show()
-    }
-
-
 }
+

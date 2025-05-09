@@ -28,9 +28,7 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // Initialize SharedPrefManager
         sharedPrefManager = SharedPrefManager(this)
-
         registerViewModel = ViewModelProvider(this)[RegisterViewModel::class.java]
 
         val btnRegister = findViewById<Button>(R.id.btnRegister)

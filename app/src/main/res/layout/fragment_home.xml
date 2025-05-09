@@ -102,15 +102,14 @@
                     android:id="@+id/textAngsuranLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Angsuran"
+                    android:text="Jenis Plafon Sekarang"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/textAngsuranValue"
+                    android:id="@+id/jenisPlafon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Rp. 2.000.000,00"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -123,15 +122,14 @@
                     android:id="@+id/textTenorLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sisa Tenor"
+                    android:text="Jumlah Plafon Sekarang"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/textTenorValue"
+                    android:id="@+id/jumlahPlafon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2 Bulan"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />

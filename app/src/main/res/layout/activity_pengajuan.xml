@@ -28,8 +28,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/pengajuan_adapinjam" />
 
-
-
     <androidx.cardview.widget.CardView
         android:layout_width="420dp"
         android:layout_height="700dp"
