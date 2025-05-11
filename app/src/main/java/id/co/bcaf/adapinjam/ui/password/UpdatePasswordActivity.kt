@@ -1,5 +1,6 @@
 package id.co.bcaf.adapinjam.ui.password
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
@@ -29,7 +30,7 @@ class UpdatePasswordActivity : AppCompatActivity() {
 
         sharedPrefManager = SharedPrefManager(this)
 
-        val btnUpdatePassword = findViewById<Button>(R.id.btnUpdatePassword)
+        val btnUpdatedPassword = findViewById<Button>(R.id.btnUpdatedPassword)
         val oldPasswordEditText = findViewById<EditText>(R.id.oldPassword)
         val newPasswordEditText = findViewById<EditText>(R.id.newPassword)
 
@@ -37,7 +38,7 @@ class UpdatePasswordActivity : AppCompatActivity() {
         progressDialog.setMessage("Mengubah password...")
         progressDialog.setCancelable(false)
 
-        btnUpdatePassword.setOnClickListener {
+        btnUpdatedPassword.setOnClickListener {
             val oldPassword = oldPasswordEditText.text.toString()
             val newPassword = newPasswordEditText.text.toString()
 
@@ -59,7 +60,7 @@ class UpdatePasswordActivity : AppCompatActivity() {
     private fun updatePassword(oldPassword: String, newPassword: String) {
         val token = sharedPrefManager.getToken()
         if (token != null) {
-            progressDialog.show() // Tampilkan loading
+            progressDialog.show()
 
             lifecycleScope.launch(Dispatchers.Main) {
                 val response = withContext(Dispatchers.IO) {
@@ -67,23 +68,27 @@ class UpdatePasswordActivity : AppCompatActivity() {
                     RetrofitClient.apiService.updatePassword("Bearer $token", request)
                 }
 
-                progressDialog.dismiss() // Sembunyikan loading
+                progressDialog.dismiss()
 
                 if (response.isSuccessful) {
-                    // Clear token and show success message
-                    sharedPrefManager.clearToken()
-                    Toast.makeText(this@UpdatePasswordActivity, "Password berhasil diubah", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@UpdatePasswordActivity, "Password berhasil diubah. Silakan login ulang.", Toast.LENGTH_SHORT).show()
 
-                    // Pastikan intent menuju LoginActivity berhasil
-                    startActivity(Intent(this@UpdatePasswordActivity, LoginActivity::class.java))
-                    finish() // Pastikan activity selesai agar tidak kembali ke halaman ini
+                    // Hapus token dan arahkan ke LoginActivity
+                    sharedPrefManager.clearToken()
+
+                    val intent = Intent(this@UpdatePasswordActivity, LoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
                 } else {
                     Toast.makeText(this@UpdatePasswordActivity, "Password gagal diubah", Toast.LENGTH_SHORT).show()
                 }
             }
         } else {
-            Toast.makeText(this, "Gagal Update Password Baru", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
     }
+
+
 }
 

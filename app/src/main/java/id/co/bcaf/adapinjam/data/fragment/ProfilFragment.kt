@@ -36,9 +36,8 @@ class ProfilFragment : Fragment() {
             showLogoutConfirmation()
         }
 
-        val btnUpdatePass = view.findViewById<LinearLayout>(R.id.btnUpdatePassword)
+        val btnUpdatePass = view.findViewById<LinearLayout>(R.id.btnUpdatePasswordProfil)
         btnUpdatePass.setOnClickListener {
-            Toast.makeText(requireContext(), "Tombol diklik", Toast.LENGTH_SHORT).show()
             val intent = Intent(requireContext(), UpdatePasswordActivity::class.java)
             startActivity(intent)
         }

@@ -58,8 +58,11 @@ class LoginActivity : AppCompatActivity() {
 
                 showSnackbar(findViewById(android.R.id.content), "Login berhasil")
 
-                startActivity(Intent(this, HomeActivity::class.java))
+                val intent = Intent(this, HomeActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
                 finish()
+
             }
             result.onFailure { e ->
                 showSnackbar(findViewById(android.R.id.content), e.message ?: "Login gagal", isError = true)
