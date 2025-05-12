@@ -52,4 +52,8 @@ interface ApiService {
         @Body request: UpdatePasswordRequest
     ): Response<Void>
 
+    @GET("api/v1/pinjaman/customer")
+    suspend fun getHistoryPinjaman(
+        @Header("Authorization") token: String
+    ): List<PinjamanHistoryResponse>
 }
