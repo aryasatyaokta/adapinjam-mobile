@@ -1,18 +1,48 @@
 package id.co.bcaf.adapinjam.data.fragment
 
-
+import HistoryPengajuanAdapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import id.co.bcaf.adapinjam.R
+import id.co.bcaf.adapinjam.data.model.PengajuanHistoryResponse
+import id.co.bcaf.adapinjam.data.utils.RetrofitClient
+import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
+import kotlinx.coroutines.launch
 
 class RiwayatFragment : Fragment() {
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var sharedPrefManager: SharedPrefManager
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_history_pengajuan, container, false)
+        val view = inflater.inflate(R.layout.fragment_history_pengajuan, container, false)
+        recyclerView = view.findViewById(R.id.rvRiwayat)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        sharedPrefManager = SharedPrefManager(requireContext())
+        val token = sharedPrefManager.getToken()
+
+        if (!token.isNullOrEmpty()) {
+            lifecycleScope.launch {
+                try {
+                    val data = RetrofitClient.apiService.getPengajuanHistory("Bearer $token")
+                    recyclerView.adapter = HistoryPengajuanAdapter(data)
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Gagal ambil data: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        return view
     }
 }

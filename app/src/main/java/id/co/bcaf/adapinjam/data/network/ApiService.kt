@@ -35,7 +35,10 @@ interface ApiService {
     suspend fun logout(@Header("Authorization") token: String): Response<Void>
 
     @GET("api/v1/plafon")
-    suspend fun getAllPlafon(): Response<List<Plafon>>
+    suspend fun getAllPlafon(@Header("Authorization") token: String): Response<List<Plafon>>
+
+    @GET("api/v1/pengajuan/history-customer")
+    suspend fun getPengajuanHistory(@Header("Authorization") token: String): List<PengajuanHistoryResponse>
 
     @PUT("api/v1/customer/edit-customer-details")
     suspend fun editCustomerDetails(
@@ -48,4 +51,5 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: UpdatePasswordRequest
     ): Response<Void>
+
 }
