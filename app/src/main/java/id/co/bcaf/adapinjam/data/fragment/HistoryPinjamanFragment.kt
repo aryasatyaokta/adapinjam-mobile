@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +18,7 @@ class HistoryPinjamanFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var sharedPrefManager: SharedPrefManager
+    private lateinit var tvEmptyMessage: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,8 +26,9 @@ class HistoryPinjamanFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_history_pinjaman, container, false)
         recyclerView = view.findViewById(R.id.recyclerViewPinjaman)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        tvEmptyMessage = view.findViewById(R.id.tvEmptyState)
 
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         sharedPrefManager = SharedPrefManager(requireContext())
         val token = sharedPrefManager.getToken()
 
@@ -35,9 +36,15 @@ class HistoryPinjamanFragment : Fragment() {
             lifecycleScope.launch {
                 try {
                     val data = RetrofitClient.apiService.getHistoryPinjaman("Bearer $token")
-                    recyclerView.adapter = HistoryPinjamanAdapter(data)
+                    if (data.isNotEmpty()) {
+                        recyclerView.adapter = HistoryPinjamanAdapter(data)
+                        tvEmptyMessage.visibility = View.GONE
+                    } else {
+                        tvEmptyMessage.visibility = View.VISIBLE
+                    }
                 } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Gagal load data: ${e.message}", Toast.LENGTH_SHORT).show()
+                    // Hapus toast seperti diminta
+                    tvEmptyMessage.visibility = View.VISIBLE
                 }
             }
         }

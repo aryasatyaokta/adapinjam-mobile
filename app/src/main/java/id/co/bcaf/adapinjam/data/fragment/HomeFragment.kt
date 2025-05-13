@@ -70,7 +70,8 @@ class HomeFragment : Fragment() {
         val token = sharedPrefManager.getToken()
 
         if (token.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
+            tvJenisPlafon.text = "-"
+            tvJumlahPlafon.text = "Rp -"
             return
         }
 
@@ -89,13 +90,18 @@ class HomeFragment : Fragment() {
                     tvJenisPlafon.text = jenisPlafon
                     tvJumlahPlafon.text = "Rp $formattedJumlahPlafon"
                 } else {
-                    Toast.makeText(requireContext(), "Gagal memuat data plafon", Toast.LENGTH_SHORT).show()
+                    tvJenisPlafon.text = "-"
+                    tvJumlahPlafon.text = "Rp -"
+                    // Tidak perlu tampilkan Toast
                 }
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                tvJenisPlafon.text = "-"
+                tvJumlahPlafon.text = "Rp -"
+                // Tidak perlu tampilkan Toast
             }
         }
     }
+
 
     private fun checkProfileBeforeAction(onProfileComplete: (() -> Unit)? = null) {
         val token = sharedPrefManager.getToken()

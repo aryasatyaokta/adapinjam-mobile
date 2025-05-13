@@ -20,6 +20,7 @@ class RiwayatFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var sharedPrefManager: SharedPrefManager
+    private lateinit var tvEmptyState: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,6 +28,7 @@ class RiwayatFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_history_pengajuan, container, false)
         recyclerView = view.findViewById(R.id.rvRiwayat)
+        tvEmptyState = view.findViewById(R.id.tvEmptyState)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         sharedPrefManager = SharedPrefManager(requireContext())
@@ -36,11 +38,18 @@ class RiwayatFragment : Fragment() {
             lifecycleScope.launch {
                 try {
                     val data = RetrofitClient.apiService.getPengajuanHistory("Bearer $token")
-                    recyclerView.adapter = HistoryPengajuanAdapter(data)
+                    if (data.isNotEmpty()) {
+                        recyclerView.adapter = HistoryPengajuanAdapter(data)
+                        tvEmptyState.visibility = View.GONE
+                    } else {
+                        tvEmptyState.visibility = View.VISIBLE
+                    }
                 } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Gagal ambil data: ${e.message}", Toast.LENGTH_SHORT).show()
+                    tvEmptyState.visibility = View.VISIBLE
                 }
             }
+        } else {
+            tvEmptyState.visibility = View.VISIBLE
         }
 
         return view

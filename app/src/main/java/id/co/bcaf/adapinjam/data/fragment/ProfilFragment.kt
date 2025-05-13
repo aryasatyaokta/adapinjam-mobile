@@ -15,9 +15,12 @@ import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
 import id.co.bcaf.adapinjam.ui.EditProfil.EditProfilActivity
+import id.co.bcaf.adapinjam.ui.adddetailcustomer.AddDetail
 import id.co.bcaf.adapinjam.ui.login.LoginActivity
 import id.co.bcaf.adapinjam.ui.password.UpdatePasswordActivity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ProfilFragment : Fragment() {
 
@@ -44,20 +47,7 @@ class ProfilFragment : Fragment() {
 
         val btnProfilSaya = view.findViewById<LinearLayout>(R.id.btnProfilSaya)
         btnProfilSaya.setOnClickListener {
-            Toast.makeText(requireContext(), "Tombol diklik", Toast.LENGTH_SHORT).show()
-            val token = sharedPrefManager.getToken()
-
-            val fragment = ProfilSayaFragment()
-
-            // Jika kamu perlu kirim token ke fragment:
-            val bundle = Bundle()
-            bundle.putString("token", token)
-            fragment.arguments = bundle
-
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment) // pastikan ID-nya sesuai container fragment-mu
-                .addToBackStack(null)
-                .commit()
+            checkProfileBeforeOpenDetail()
         }
 
         return view
@@ -100,4 +90,63 @@ class ProfilFragment : Fragment() {
             Toast.makeText(context, "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun checkProfileBeforeOpenDetail() {
+        val token = sharedPrefManager.getToken()
+
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitClient.apiService.checkProfile("Bearer $token")
+                }
+
+                withContext(Dispatchers.Main) {
+                    when {
+                        response.isSuccessful -> {
+                            // Profil lengkap → buka ProfilSayaFragment
+                            val fragment = ProfilSayaFragment()
+                            val bundle = Bundle()
+                            bundle.putString("token", token)
+                            fragment.arguments = bundle
+
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.fragment_container, fragment)
+                                .addToBackStack(null)
+                                .commit()
+                        }
+
+                        response.code() == 428 -> {
+                            // Profil belum lengkap → tampilkan dialog
+                            android.app.AlertDialog.Builder(requireContext())
+                                .setTitle("Lengkapi Profil")
+                                .setMessage("Profil Anda belum lengkap. Silakan lengkapi terlebih dahulu.")
+                                .setPositiveButton("Lengkapi Sekarang") { _, _ ->
+                                    startActivity(Intent(requireContext(), AddDetail::class.java))
+                                }
+                                .setCancelable(false)
+                                .show()
+                        }
+
+                        else -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Gagal memeriksa status profil: ${response.code()}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
 }

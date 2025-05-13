@@ -34,7 +34,7 @@ interface ApiService {
     @POST("api/v1/auth/logout")
     suspend fun logout(@Header("Authorization") token: String): Response<Void>
 
-    @GET("api/v1/plafon")
+    @GET("api/v1/plafon/all")
     suspend fun getAllPlafon(@Header("Authorization") token: String): Response<List<Plafon>>
 
     @GET("api/v1/pengajuan/history-customer")
