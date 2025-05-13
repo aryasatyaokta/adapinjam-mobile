@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
@@ -45,6 +46,8 @@ class ProfilSayaFragment : Fragment() {
     private lateinit var btnBack: ImageView
     private lateinit var loadingProfile: ProgressBar
 
+    private lateinit var fotoKtp: ImageView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,6 +63,8 @@ class ProfilSayaFragment : Fragment() {
 
         nameProfile = view.findViewById(R.id.nameProfile)
         emailProfile = view.findViewById(R.id.emailProfile)
+
+        fotoKtp = view.findViewById(R.id.fotoKtp)
 
         nik = view.findViewById(R.id.nik)
         tempatLahir = view.findViewById(R.id.tempatLahir)
@@ -86,9 +91,7 @@ class ProfilSayaFragment : Fragment() {
         }
 
         btnBack.setOnClickListener {
-            val intent = Intent(requireContext(), ProfilActivity::class.java)
-            startActivity(intent)
-            requireActivity().finish()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         profileViewModel.profileData.observe(viewLifecycleOwner) { profile ->
@@ -119,6 +122,15 @@ class ProfilSayaFragment : Fragment() {
     }
 
     private fun updateUI(profile: UserCustomerResponse) {
+        val fotoUrl = profile.fotoUrl // pastikan field ini sesuai dengan nama di model
+        if (!fotoUrl.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(fotoUrl)
+                .placeholder(R.drawable.ic_image) // gunakan drawable default
+                .error(R.drawable.ic_image)
+                .into(fotoKtp)
+        }
+
         nameProfile.text = profile.user?.name ?: "-"
         emailProfile.text = profile.user?.email ?: "-"
         nik.text = profile.nik ?: "-"

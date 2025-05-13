@@ -51,7 +51,6 @@ class RiwayatFragment : Fragment() {
         } else {
             tvEmptyState.visibility = View.VISIBLE
         }
-
         return view
     }
 }

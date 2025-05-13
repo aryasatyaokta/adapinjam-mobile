@@ -169,6 +169,22 @@
             android:textColor="#000000"
             android:layout_marginBottom="32dp" />
 
+        <Button
+            android:id="@+id/btnAmbilFoto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ambil Foto"
+            android:layout_marginBottom="10dp" />
+
+        <ImageView
+            android:id="@+id/imagePreview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:background="#DDD"
+            android:layout_marginBottom="32dp"/>
+
+
         <!-- Tombol Submit -->
         <Button
             android:id="@+id/btnAddDetail"

@@ -15,7 +15,9 @@ data class UserCustomerResponse(
     val noRek: String? = null,
     val id: String? = null,
     val user: User? = null,
-    val plafon: Plafon? = null
+    val plafon: Plafon? = null,
+    val fotoUrl: String? = null
+
 )
 
 data class User(
