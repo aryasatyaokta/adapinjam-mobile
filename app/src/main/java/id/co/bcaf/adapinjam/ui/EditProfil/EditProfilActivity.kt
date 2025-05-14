@@ -2,18 +2,27 @@ package id.co.bcaf.adapinjam.ui.EditProfil
 
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.fragment.ProfilSayaFragment
 import id.co.bcaf.adapinjam.data.model.UserCustomerRequest
 import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
 import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
 import id.co.bcaf.adapinjam.data.viewModel.EditProfilViewModel
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import java.util.*
 
 class EditProfilActivity : AppCompatActivity() {
@@ -34,6 +43,14 @@ class EditProfilActivity : AppCompatActivity() {
     private lateinit var statusRumah: EditText
     private lateinit var btnBack: ImageView
     private lateinit var btnSubmit: Button
+
+    private lateinit var fotoProfil: ImageView
+    private lateinit var btnUploadFoto: Button
+    private var selectedImageUri: Uri? = null
+
+    private var customerId: String? = null
+    private val REQUEST_IMAGE_CAPTURE = 1002
+    private var photoFile: File? = null
 
     private val genderOptions = arrayOf("Laki-laki", "Perempuan")
 
@@ -65,6 +82,13 @@ class EditProfilActivity : AppCompatActivity() {
         tanggalLahir.setOnClickListener { showDatePicker() }
         btnBack.setOnClickListener { onBackPressed() }
         btnSubmit.setOnClickListener { showConfirmationDialog() }
+
+        fotoProfil = findViewById(R.id.fotoProfil)
+        btnUploadFoto = findViewById(R.id.btnUploadFoto)
+
+        btnUploadFoto.setOnClickListener {
+            openGalleryForImage()
+        }
 
         val token = intent.getStringExtra("token")
 
@@ -151,6 +175,7 @@ class EditProfilActivity : AppCompatActivity() {
     }
 
     private fun updateUI(profile: UserCustomerResponse) {
+        customerId = profile.id.toString()
         nik.setText(profile.nik)
         tempatLahir.setText(profile.tempatLahir)
         tanggalLahir.setText(profile.tanggalLahir)
@@ -162,5 +187,71 @@ class EditProfilActivity : AppCompatActivity() {
         gaji.setText(profile.gaji.toString())
         rekening.setText(profile.noRek)
         statusRumah.setText(profile.statusRumah)
+        Glide.with(this)
+            .load(profile.fotoUrl)  // asumsi ini adalah URL dari server
+            .placeholder(R.drawable.ic_image)  // ganti sesuai kebutuhan
+            .error(R.drawable.ic_image)
+            .into(fotoProfil)
+
     }
+
+    private fun openGalleryForImage() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, 1001)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1001 && resultCode == RESULT_OK) {
+            selectedImageUri = data?.data
+            fotoProfil.setImageURI(selectedImageUri)
+
+            // Kirim ke server (jika diperlukan langsung)
+            selectedImageUri?.let {
+                uploadImageToServer(it)
+            }
+        }
+    }
+
+    private fun uploadImageToServer(uri: Uri) {
+        val token = sharedPref.getToken() ?: return
+        val id = customerId ?: return  // pastikan ID sudah ada
+        val file = File(getRealPathFromURI(uri))
+        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+        viewModel.uploadFotoProfil(token, id, body)
+    }
+
+    private fun getRealPathFromURI(uri: Uri): String {
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = contentResolver.query(uri, projection, null, null, null)
+        cursor?.moveToFirst()
+        val columnIndex = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        val filePath = columnIndex?.let { cursor.getString(it) } ?: ""
+        cursor?.close()
+        return filePath
+    }
+
+    private fun openCameraForImage() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        photoFile = createImageFile()
+
+        val photoURI: Uri = FileProvider.getUriForFile(
+            this,
+            "${applicationContext.packageName}.provider",  // pastikan sesuai
+            photoFile!!
+        )
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+    }
+
+    private fun createImageFile(): File {
+        val fileName = "JPEG_${System.currentTimeMillis()}_"
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(fileName, ".jpg", storageDir!!)
+    }
+
+
 }

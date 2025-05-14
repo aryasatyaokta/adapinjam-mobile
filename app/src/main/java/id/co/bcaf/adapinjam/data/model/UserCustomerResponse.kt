@@ -25,7 +25,8 @@ data class User(
     val role: Role? = null,
     val name: String? = null,
     val id: String? = null,
-    val email: String? = null
+    val email: String? = null,
+    val active: Boolean = false // tambahkan ini
 )
 
 data class Plafon(

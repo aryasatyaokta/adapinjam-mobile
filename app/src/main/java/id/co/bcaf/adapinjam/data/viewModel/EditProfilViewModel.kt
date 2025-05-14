@@ -6,6 +6,7 @@ import id.co.bcaf.adapinjam.data.model.UserCustomerRequest
 import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
 import retrofit2.Response
 
 class EditProfilViewModel : ViewModel() {
@@ -15,6 +16,9 @@ class EditProfilViewModel : ViewModel() {
 
     private val _fetchProfileResult = MutableLiveData<Result<UserCustomerResponse>>()
     val fetchProfileResult: LiveData<Result<UserCustomerResponse>> = _fetchProfileResult
+
+    private val _uploadFotoResult = MutableLiveData<Result<String>>()
+    val uploadFotoResult: LiveData<Result<String>> = _uploadFotoResult
 
 
     fun fetchProfileData(token: String) {
@@ -50,6 +54,21 @@ class EditProfilViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _editProfileResult.postValue(Result.failure(e))
+            }
+        }
+    }
+
+    fun uploadFotoProfil(token: String, id: String, file: MultipartBody.Part) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.uploadFoto("Bearer $token", id, file)
+                if (response.isSuccessful) {
+                    _uploadFotoResult.postValue(Result.success("Upload foto berhasil"))
+                } else {
+                    _uploadFotoResult.postValue(Result.failure(Exception("Gagal upload foto: ${response.code()}")))
+                }
+            } catch (e: Exception) {
+                _uploadFotoResult.postValue(Result.failure(e))
             }
         }
     }

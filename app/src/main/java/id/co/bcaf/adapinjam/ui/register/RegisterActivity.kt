@@ -1,5 +1,6 @@
 package id.co.bcaf.adapinjam.ui.register
 
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
 import android.graphics.Color
@@ -12,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import id.co.bcaf.adapinjam.R
-import id.co.bcaf.adapinjam.ui.home.HomeActivity
 import id.co.bcaf.adapinjam.ui.login.LoginActivity
 import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
 import id.co.bcaf.adapinjam.data.viewModel.RegisterViewModel
@@ -45,13 +45,16 @@ class RegisterActivity : AppCompatActivity() {
         registerViewModel.registerResult.observe(this) { result ->
             progressDialog.dismiss()
             result.onSuccess { token ->
-                // ✅ Simpan token pakai SharedPrefManager
                 sharedPrefManager.setToken(token)
-                showSnackbar(findViewById(android.R.id.content), "Registrasi berhasil")
-
-                startActivity(Intent(this, HomeActivity::class.java))
-                finish()
+                showSnackbar(findViewById(android.R.id.content), "Registrasi berhasil! Silakan cek email untuk verifikasi.")
+                window.decorView.postDelayed({
+                    val intent = Intent(this, LoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                }, 5000) // 5000 = 5 detik
             }
+
             result.onFailure { e ->
                 showSnackbar(findViewById(android.R.id.content), e.message ?: "Registrasi gagal", isError = true)
             }
@@ -76,11 +79,20 @@ class RegisterActivity : AppCompatActivity() {
                     edtName.requestFocus()
                 }
                 else -> {
-                    progressDialog.show()
-                    registerViewModel.register(username, password, name)
+                    // 🔔 Tampilkan dialog konfirmasi sebelum submit
+                    AlertDialog.Builder(this)
+                        .setTitle("Konfirmasi")
+                        .setMessage("Apakah data Anda sudah benar?")
+                        .setPositiveButton("Ya") { _, _ ->
+                            progressDialog.show()
+                            registerViewModel.register(username, password, name)
+                        }
+                        .setNegativeButton("Batal", null)
+                        .show()
                 }
             }
         }
+
 
         findViewById<TextView>(R.id.Login).setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
