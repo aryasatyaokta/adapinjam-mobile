@@ -44,9 +44,17 @@ class AddDetail : AppCompatActivity() {
     private var imageUri: Uri? = null
     private var imageFile: File? = null
 
+    private val GALLERY_REQUEST_CODE = 102
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_detail)
+
+        val btnUploadFoto = findViewById<Button>(R.id.btnUploadFoto)
+        btnUploadFoto.setOnClickListener {
+            openGallery()
+        }
+
 
         val btnAmbilFoto = findViewById<Button>(R.id.btnAmbilFoto)
         btnAmbilFoto.setOnClickListener {
@@ -191,9 +199,17 @@ class AddDetail : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
-            val imageView = findViewById<ImageView>(R.id.imagePreview)
-            imageView.setImageURI(imageUri)
+        val imageView = findViewById<ImageView>(R.id.imagePreview)
+        if (resultCode == RESULT_OK) {
+            when (requestCode) {
+                CAMERA_REQUEST_CODE -> {
+                    imageView.setImageURI(imageUri)
+                }
+                GALLERY_REQUEST_CODE -> {
+                    imageUri = data?.data
+                    imageView.setImageURI(imageUri)
+                }
+            }
         }
     }
 
@@ -260,4 +276,11 @@ class AddDetail : AppCompatActivity() {
         out.close()
         return file
     }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, GALLERY_REQUEST_CODE)
+    }
+
 }
