@@ -83,10 +83,7 @@ class ProfilSayaFragment : Fragment() {
 
         val btnEdit = view.findViewById<View>(R.id.btnEditProfile)
         btnEdit.setOnClickListener {
-            Toast.makeText(requireContext(), "Tombol diklik", Toast.LENGTH_SHORT).show()
-            val token = sharedPrefManager.getToken()
             val intent = Intent(requireContext(), EditProfilActivity::class.java)
-            intent.putExtra("token", token)
             startActivity(intent)
         }
 

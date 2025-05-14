@@ -2,11 +2,11 @@ package id.co.bcaf.adapinjam.ui.EditProfil
 
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -43,14 +43,14 @@ class EditProfilActivity : AppCompatActivity() {
     private lateinit var statusRumah: EditText
     private lateinit var btnBack: ImageView
     private lateinit var btnSubmit: Button
-
-    private lateinit var fotoProfil: ImageView
-    private lateinit var btnUploadFoto: Button
-    private var selectedImageUri: Uri? = null
+    private lateinit var imagePreview: ImageView
 
     private var customerId: String? = null
-    private val REQUEST_IMAGE_CAPTURE = 1002
-    private var photoFile: File? = null
+    private val CAMERA_REQUEST_CODE = 100
+    private val GALLERY_REQUEST_CODE = 102
+
+    private var imageUri: Uri? = null
+    private var imageFile: File? = null
 
     private val genderOptions = arrayOf("Laki-laki", "Perempuan")
 
@@ -74,6 +74,7 @@ class EditProfilActivity : AppCompatActivity() {
         statusRumah = findViewById(R.id.StatusRumah)
         btnBack = findViewById(R.id.btnBack)
         btnSubmit = findViewById(R.id.btnAddDetail)
+        imagePreview = findViewById(R.id.fotoProfil)
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderOptions)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -83,28 +84,98 @@ class EditProfilActivity : AppCompatActivity() {
         btnBack.setOnClickListener { onBackPressed() }
         btnSubmit.setOnClickListener { showConfirmationDialog() }
 
-        fotoProfil = findViewById(R.id.fotoProfil)
-        btnUploadFoto = findViewById(R.id.btnUploadFoto)
+        findViewById<Button>(R.id.btnUploadFoto).setOnClickListener { openGallery() }
+        findViewById<Button>(R.id.btnAmbilFoto).setOnClickListener { openCamera() }
 
-        btnUploadFoto.setOnClickListener {
-            openGalleryForImage()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 101)
+            }
         }
 
-        val token = intent.getStringExtra("token")
-
         observeViewModel()
-        getProfileData()  // Fetch profile data when the activity is created
+        getProfileData()
+    }
+
+    private fun openCamera() {
+        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
+        imageFile = File.createTempFile("photo_", ".jpg", cacheDir)
+        imageUri = FileProvider.getUriForFile(this, "${packageName}.provider", imageFile!!)
+
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+        cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+
+        startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE)
+    }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, GALLERY_REQUEST_CODE)
+    }
+
+//    private fun createImageFile(): File {
+//        val fileName = "IMG_${System.currentTimeMillis()}"
+//        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+//        return File.createTempFile(fileName, ".jpg", storageDir!!)
+//    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK) {
+            when (requestCode) {
+                CAMERA_REQUEST_CODE -> {
+                    imageUri?.let {
+                        imagePreview.setImageURI(it)
+                        uploadImageToServer(it)
+                    }
+                }
+                GALLERY_REQUEST_CODE -> {
+                    val selectedImageUri = data?.data
+                    if (selectedImageUri != null) {
+                        imageUri = selectedImageUri
+                        imagePreview.setImageURI(imageUri)
+                        uploadImageToServer(imageUri!!)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun uploadImageToServer(uri: Uri) {
+        val token = sharedPref.getToken() ?: return
+        val id = customerId ?: return
+
+        val filePath = uriToFile(uri)
+        if (filePath != null) {
+            val requestFile = filePath.asRequestBody("image/*".toMediaTypeOrNull())
+            val body = MultipartBody.Part.createFormData("file", filePath.name, requestFile)
+            viewModel.uploadFotoProfil(token, id, body)
+        } else {
+            Toast.makeText(this, "Gagal membaca file", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun uriToFile(uri: Uri): File? {
+        try {
+            val inputStream = contentResolver.openInputStream(uri) ?: return null
+            val tempFile = File.createTempFile("upload_", ".jpg", cacheDir)
+            tempFile.outputStream().use { output ->
+                inputStream.copyTo(output)
+            }
+            return tempFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()
         DatePickerDialog(this, { _, year, month, day ->
             tanggalLahir.setText(String.format("%04d-%02d-%02d", year, month + 1, day))
-        },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
     }
 
     private fun showConfirmationDialog() {
@@ -142,7 +213,6 @@ class EditProfilActivity : AppCompatActivity() {
 
     private fun getProfileData() {
         val token = sharedPref.getToken()
-        Log.d("EditProfilActivity", "Token yang digunakan: $token")
         if (token != null) {
             viewModel.fetchProfileData(token)
         } else {
@@ -152,9 +222,7 @@ class EditProfilActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         viewModel.fetchProfileResult.observe(this) { result ->
-            result.onSuccess {
-                updateUI(it)
-            }
+            result.onSuccess { updateUI(it) }
             result.onFailure {
                 Toast.makeText(this, "Gagal memuat profil: ${it.message}", Toast.LENGTH_SHORT).show()
             }
@@ -187,71 +255,11 @@ class EditProfilActivity : AppCompatActivity() {
         gaji.setText(profile.gaji.toString())
         rekening.setText(profile.noRek)
         statusRumah.setText(profile.statusRumah)
+
         Glide.with(this)
-            .load(profile.fotoUrl)  // asumsi ini adalah URL dari server
-            .placeholder(R.drawable.ic_image)  // ganti sesuai kebutuhan
+            .load(profile.fotoUrl)
+            .placeholder(R.drawable.ic_image)
             .error(R.drawable.ic_image)
-            .into(fotoProfil)
-
+            .into(imagePreview)
     }
-
-    private fun openGalleryForImage() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        startActivityForResult(intent, 1001)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1001 && resultCode == RESULT_OK) {
-            selectedImageUri = data?.data
-            fotoProfil.setImageURI(selectedImageUri)
-
-            // Kirim ke server (jika diperlukan langsung)
-            selectedImageUri?.let {
-                uploadImageToServer(it)
-            }
-        }
-    }
-
-    private fun uploadImageToServer(uri: Uri) {
-        val token = sharedPref.getToken() ?: return
-        val id = customerId ?: return  // pastikan ID sudah ada
-        val file = File(getRealPathFromURI(uri))
-        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-        val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
-
-        viewModel.uploadFotoProfil(token, id, body)
-    }
-
-    private fun getRealPathFromURI(uri: Uri): String {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor = contentResolver.query(uri, projection, null, null, null)
-        cursor?.moveToFirst()
-        val columnIndex = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        val filePath = columnIndex?.let { cursor.getString(it) } ?: ""
-        cursor?.close()
-        return filePath
-    }
-
-    private fun openCameraForImage() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        photoFile = createImageFile()
-
-        val photoURI: Uri = FileProvider.getUriForFile(
-            this,
-            "${applicationContext.packageName}.provider",  // pastikan sesuai
-            photoFile!!
-        )
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
-    }
-
-    private fun createImageFile(): File {
-        val fileName = "JPEG_${System.currentTimeMillis()}_"
-        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(fileName, ".jpg", storageDir!!)
-    }
-
-
 }

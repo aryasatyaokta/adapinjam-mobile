@@ -183,11 +183,17 @@
                 android:src="@drawable/ic_image" />
 
             <Button
+                android:id="@+id/btnAmbilFoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ambil Foto dari Kamera"
+                android:layout_marginTop="16dp"/>
+
+            <Button
                 android:id="@+id/btnUploadFoto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Upload Foto dari Galeri"
-                android:layout_marginTop="16dp"/>
+                android:text="Upload Foto dari Galeri"/>
 
 
             <!-- Tombol Submit -->

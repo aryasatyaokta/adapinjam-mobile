@@ -27,6 +27,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             Log.d("FCM","Message Notification Body: ${it.body}")
         }
     }
+
     override fun onNewToken(token: String){
         super.onNewToken(token)
         Log.d("FCM", "Refrasehd Token: $token")
