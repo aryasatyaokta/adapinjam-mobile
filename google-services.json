@@ -12,7 +12,20 @@
           "package_name": "id.co.bcaf.adapinjam"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "544904337448-dcnmeblqsk7mou0oqrocm1rv2ri6gcsq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "id.co.bcaf.adapinjam",
+            "certificate_hash": "f2fbb44df137481fcb0ee25d89b271f5cc303cba"
+          }
+        },
+        {
+          "client_id": "544904337448-cc259lkh47qnsar5t3bupo1i6mi0kpdk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB83VGZJJJ3q3C4bTnRG7JGbij-Wa786Cs"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "544904337448-cc259lkh47qnsar5t3bupo1i6mi0kpdk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

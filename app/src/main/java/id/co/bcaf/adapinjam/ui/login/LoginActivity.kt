@@ -20,7 +20,15 @@ import android.app.ProgressDialog
 import android.graphics.Color
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.SignInButton
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
+import id.co.bcaf.adapinjam.data.model.GoogleAuthRequest
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.ui.adddetailcustomer.AddDetail
 import id.co.bcaf.adapinjam.utils.setupPasswordToggle
@@ -32,6 +40,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var progressDialog: ProgressDialog
     private lateinit var sharedPrefManager: SharedPrefManager
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private val RC_SIGN_IN = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,12 +67,13 @@ class LoginActivity : AppCompatActivity() {
                 Log.d("LoginActivity", "Token disimpan: $token")
 
                 showSnackbar(findViewById(android.R.id.content), "Login berhasil")
-
-                val intent = Intent(this, HomeActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
-
+                lifecycleScope.launch {
+                    kotlinx.coroutines.delay(5000)
+                    val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                }
             }
             result.onFailure { e ->
                 showSnackbar(findViewById(android.R.id.content), e.message ?: "Login gagal", isError = true)
@@ -92,6 +103,42 @@ class LoginActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.Register).setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken("544904337448-cc259lkh47qnsar5t3bupo1i6mi0kpdk.apps.googleusercontent.com") // Ganti dengan Web client ID dari Google Console
+            .requestEmail()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        findViewById<SignInButton>(R.id.btnGoogleSignIn).setOnClickListener {
+            googleSignInClient.signOut().addOnCompleteListener {
+                val signInIntent = googleSignInClient.signInIntent
+                startActivityForResult(signInIntent, RC_SIGN_IN)
+            }
+        }
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == RC_SIGN_IN) {
+            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                val idToken = account.idToken
+                Log.d("ID_TOKEN", idToken ?: "null")
+                if (idToken != null) {
+                    loginWithGoogleIdToken(idToken)
+                } else {
+                    Toast.makeText(this, "Token Google tidak ditemukan", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: ApiException) {
+                e.printStackTrace()
+                Toast.makeText(this, "Google Sign-In gagal: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun showSnackbar(view: View, message: String, isError: Boolean = false) {
@@ -102,5 +149,25 @@ class LoginActivity : AppCompatActivity() {
         snackbar.setTextColor(Color.WHITE)
         snackbar.show()
     }
+
+    private fun loginWithGoogleIdToken(idToken: String) {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.apiService.loginWithGoogle(GoogleAuthRequest(idToken))
+                sharedPrefManager.setToken(response.token)
+
+                showSnackbar(findViewById(android.R.id.content), "Login berhasil, cek email. Password sudah terkirim")
+
+                kotlinx.coroutines.delay(5000)
+                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+                finish()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(this@LoginActivity, "Login Google gagal", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
 
 }
