@@ -24,6 +24,9 @@ interface ApiService {
     @POST("api/v1/auth/register-customer")
     suspend fun register(@Body request: RegisterRequest): Response<RegisterResponse>
 
+    @POST("api/v1/auth/forgot-password")
+    suspend fun forgotPassword(@Body request: Map<String, String>): Response<ResponseBody>
+
     @GET("api/v1/customer/get-customer")
     suspend fun getCustomerProfile(@Header("Authorization") token: String): Response<UserCustomerResponse>
 
@@ -71,4 +74,10 @@ interface ApiService {
     suspend fun getHistoryPinjaman(
         @Header("Authorization") token: String
     ): List<PinjamanHistoryResponse>
+
+    @POST("api/v1/pengajuan/create")
+    suspend fun createPengajuan(
+        @Header("Authorization") token: String,
+        @Body request: PengajuanRequest,
+    ): Response<PengajuanResponse>
 }

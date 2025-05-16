@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 import android.app.ProgressDialog
 import android.graphics.Color
 import android.view.View
+import android.widget.LinearLayout
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -31,6 +33,8 @@ import com.google.android.material.snackbar.Snackbar
 import id.co.bcaf.adapinjam.data.model.GoogleAuthRequest
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.ui.adddetailcustomer.AddDetail
+import id.co.bcaf.adapinjam.ui.password.ResetPasswordActivity
+import id.co.bcaf.adapinjam.ui.password.UpdatePasswordActivity
 import id.co.bcaf.adapinjam.utils.setupPasswordToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -53,6 +57,12 @@ class LoginActivity : AppCompatActivity() {
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val edtUsername = findViewById<EditText>(R.id.Email)
         val edtPassword = findViewById<EditText>(R.id.Password)
+
+        val btnForgotPass = findViewById<TextView>(R.id.ForgotPassword)
+        btnForgotPass.setOnClickListener {
+            val intent = Intent(this@LoginActivity, ResetPasswordActivity::class.java)
+            startActivity(intent)
+        }
 
         edtPassword.setupPasswordToggle()
 
