@@ -50,28 +50,6 @@
                 app:layout_constraintTop_toTopOf="@id/tvTotalPinjaman" />
 
             <TextView
-                android:id="@+id/tvSisaHutang"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sisa Hutang"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="@id/tvTotalPinjaman"
-                app:layout_constraintTop_toBottomOf="@id/tvTotalPinjaman" />
-
-            <TextView
-                android:id="@+id/sisaHutang"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rp. 5.000.000"
-                android:textColor="#003E9A"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/totalPinjaman" />
-
-            <TextView
                 android:id="@+id/tvBunga"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -79,8 +57,8 @@
                 android:textColor="#000000"
                 android:textSize="14sp"
                 android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="@id/tvSisaHutang"
-                app:layout_constraintTop_toBottomOf="@id/tvSisaHutang" />
+                app:layout_constraintStart_toStartOf="@id/tvTotalPinjaman"
+                app:layout_constraintTop_toBottomOf="@id/tvTotalPinjaman" />
 
             <TextView
                 android:id="@+id/Bunga"
@@ -91,7 +69,29 @@
                 android:textSize="14sp"
                 android:layout_marginTop="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/sisaHutang" />
+                app:layout_constraintTop_toBottomOf="@id/totalPinjaman" />
+
+            <TextView
+                android:id="@+id/tvTenor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tenor"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="@id/tvBunga"
+                app:layout_constraintTop_toBottomOf="@id/tvBunga" />
+
+            <TextView
+                android:id="@+id/Tenor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6 Bulan"
+                android:textColor="#003E9A"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/Bunga" />
 
             <!-- Garis Putus -->
             <View
@@ -100,11 +100,55 @@
                 android:layout_height="2dp"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/dashed_line"
-                app:layout_constraintTop_toBottomOf="@id/Bunga"
+                app:layout_constraintTop_toBottomOf="@id/Tenor"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- Angsuran per Bulan -->
+            <TextView
+                android:id="@+id/tvSisaHutang"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sisa Hutang"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginTop="14dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dashedLine" />
+
+            <TextView
+                android:id="@+id/sisaHutang"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rp. 5.000.000"
+                android:textColor="#003E9A"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvSisaHutang"/>
+
+            <TextView
+                android:id="@+id/tvSisaTenor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sisa Tenor"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="@id/tvSisaHutang"
+                app:layout_constraintTop_toBottomOf="@id/tvSisaHutang" />
+
+            <TextView
+                android:id="@+id/sisaTenor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6 Bulan"
+                android:textColor="#003E9A"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sisaHutang" />
+
             <TextView
                 android:id="@+id/tvAngsuranBulan"
                 android:layout_width="wrap_content"
@@ -112,9 +156,9 @@
                 android:text="Angsuran perbulan"
                 android:textColor="#000000"
                 android:textSize="14sp"
-                android:layout_marginTop="14dp"
-                app:layout_constraintTop_toBottomOf="@id/dashedLine"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="@id/tvSisaTenor"
+                app:layout_constraintTop_toBottomOf="@id/tvSisaTenor"/>
 
             <TextView
                 android:id="@+id/angsuranBulan"
@@ -123,7 +167,18 @@
                 android:text="Rp. 1.500.000"
                 android:textColor="#003E9A"
                 android:textSize="14sp"
-                app:layout_constraintTop_toTopOf="@id/tvAngsuranBulan"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sisaTenor" />
+
+            <View
+                android:id="@+id/dashedLine2"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/dashed_line"
+                app:layout_constraintTop_toBottomOf="@id/angsuranBulan"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- Status -->
@@ -134,9 +189,9 @@
                 android:text="Status Pinjaman"
                 android:textColor="#000000"
                 android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/tvAngsuranBulan"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:layout_marginTop="14dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dashedLine2" />
 
             <TextView
                 android:id="@+id/statusLabel"

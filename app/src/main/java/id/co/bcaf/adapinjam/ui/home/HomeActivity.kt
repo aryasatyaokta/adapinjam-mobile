@@ -43,10 +43,10 @@ class HomeActivity : AppCompatActivity() {
                     loadFragment(HomeFragment())
                     true
                 }
-                R.id.nav_riwayat -> {
-                    loadFragment(RiwayatFragment())
-                    true
-                }
+//                R.id.nav_riwayat -> {
+//                    loadFragment(RiwayatFragment())
+//                    true
+//                }
                 R.id.nav_pinjaman -> {
                     loadFragment(HistoryPinjamanFragment())
                     true

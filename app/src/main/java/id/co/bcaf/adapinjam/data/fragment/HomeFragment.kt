@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -18,6 +19,8 @@ import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
 import id.co.bcaf.adapinjam.ui.adddetailcustomer.AddDetail
+import id.co.bcaf.adapinjam.ui.historypengajuan.HistoryPengajuanActivity
+import id.co.bcaf.adapinjam.ui.password.UpdatePasswordActivity
 import id.co.bcaf.adapinjam.ui.pengajuan.PengajuanActivity
 import id.co.bcaf.adapinjam.ui.plafon.PlafonAdapter
 import kotlinx.coroutines.Dispatchers
@@ -26,16 +29,19 @@ import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Locale
 
-
 class HomeFragment : Fragment() {
 
     private lateinit var sharedPrefManager: SharedPrefManager
     private lateinit var tvJenisPlafon: TextView
     private lateinit var tvJumlahPlafon: TextView
+    private lateinit var tvSisaHutang: TextView
+    private lateinit var tvSisaPlafon: TextView
+
+    private lateinit var tvTotalPinjaman: TextView
+    private lateinit var tvTotalTenor: TextView
 
     private lateinit var rvAllPlafon: RecyclerView
     private lateinit var plafonAdapter: PlafonAdapter
-
 
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
@@ -47,13 +53,20 @@ class HomeFragment : Fragment() {
 
         tvJenisPlafon = view.findViewById(R.id.jenisPlafon)
         tvJumlahPlafon = view.findViewById(R.id.jumlahPlafon)
+        tvSisaHutang = view.findViewById(R.id.tvSisaHutangHome)
+        tvSisaPlafon = view.findViewById(R.id.tvSisaPlafonHome)
+
+        tvTotalPinjaman = view.findViewById(R.id.totalPengajuanHome)
+        tvTotalTenor = view.findViewById(R.id.totalTenorPengajuanHome)
+
 
         rvAllPlafon = view.findViewById(R.id.rvAllPlafon)
         rvAllPlafon.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         loadAllPlafon()
-
         loadPlafon()
+        loadSisaHutang()
+        loadPengajuanTerbaru()
 
         val btnAjukanPinjaman: Button = view.findViewById(R.id.btnAjukanPinjaman)
         btnAjukanPinjaman.setOnClickListener {
@@ -61,6 +74,12 @@ class HomeFragment : Fragment() {
                 val intent = Intent(requireContext(), PengajuanActivity::class.java)
                 startActivity(intent)
             }
+        }
+
+        val viewAll = view.findViewById<TextView>(R.id.viewAllText)
+        viewAll.setOnClickListener {
+            val intent = Intent(requireContext(), HistoryPengajuanActivity::class.java)
+            startActivity(intent)
         }
 
         return view
@@ -72,6 +91,7 @@ class HomeFragment : Fragment() {
         if (token.isNullOrEmpty()) {
             tvJenisPlafon.text = "-"
             tvJumlahPlafon.text = "Rp -"
+            tvSisaPlafon.text = "Rp -"
             return
         }
 
@@ -82,22 +102,50 @@ class HomeFragment : Fragment() {
                 }
 
                 if (response.isSuccessful) {
-                    val userProfile: UserCustomerResponse? = response.body()
+                    val userProfile = response.body()
                     val jenisPlafon = userProfile?.plafon?.jenisPlafon ?: "-"
-                    val jumlahPlafonValue = (userProfile?.plafon?.jumlahPlafon as? Number)?.toLong() ?: 0L
-                    val formattedJumlahPlafon = NumberFormat.getNumberInstance(Locale("in", "ID")).format(jumlahPlafonValue)
+                    val jumlahPlafonValue = (userProfile?.plafon?.jumlahPlafon as? Number)?.toDouble() ?: 0.0
+                    val formattedPlafon = formatRupiah(jumlahPlafonValue)
 
                     tvJenisPlafon.text = jenisPlafon
-                    tvJumlahPlafon.text = "Rp $formattedJumlahPlafon"
+                    tvJumlahPlafon.text = formattedPlafon
+                    tvSisaPlafon.text = if (jumlahPlafonValue > 0) formattedPlafon else "Rp -"
                 } else {
                     tvJenisPlafon.text = "-"
                     tvJumlahPlafon.text = "Rp -"
-                    // Tidak perlu tampilkan Toast
+                    tvSisaPlafon.text = "Rp -"
                 }
             } catch (e: Exception) {
                 tvJenisPlafon.text = "-"
                 tvJumlahPlafon.text = "Rp -"
-                // Tidak perlu tampilkan Toast
+                tvSisaPlafon.text = "Rp -"
+            }
+        }
+    }
+
+    private fun loadSisaHutang() {
+        val token = sharedPrefManager.getToken() ?: return
+
+        lifecycleScope.launch {
+            try {
+                // Ambil data di IO dispatcher
+                val pinjamanList = withContext(Dispatchers.IO) {
+                    RetrofitClient.apiService.getHistoryPinjaman("Bearer $token")
+                }
+
+                // Hitung total sisa hutang
+                val totalHutang = pinjamanList.sumOf { it.sisaPokokHutang ?: 0.0 }
+
+                // Tampilkan di UI
+                withContext(Dispatchers.Main) {
+                    tvSisaHutang.text = if (totalHutang > 0) formatRupiah(totalHutang) else "Rp -"
+                }
+            } catch (e: Exception) {
+                // Tangani jika error (misal gagal koneksi, token salah, dll)
+                withContext(Dispatchers.Main) {
+                    tvSisaHutang.text = "Rp -"
+                    Log.e("LoadHutang", "Error: ${e.message}", e)
+                }
             }
         }
     }
@@ -185,5 +233,44 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun formatRupiah(amount: Double): String {
+        val localeID = Locale("in", "ID")
+        val numberFormat = NumberFormat.getNumberInstance(localeID)
+        return "Rp ${numberFormat.format(amount)}"
+    }
+
+    private fun loadPengajuanTerbaru() {
+        val token = sharedPrefManager.getToken() ?: return
+
+        lifecycleScope.launch {
+            try {
+                val historyList = withContext(Dispatchers.IO) {
+                    RetrofitClient.apiService.getPengajuanHistory("Bearer $token")
+                }
+
+                if (historyList.isNotEmpty()) {
+                    // Asumsikan item terakhir adalah yang terbaru (pastikan backend urutkan descending)
+                    val latest = historyList.last()
+
+                    withContext(Dispatchers.Main) {
+                        tvTotalPinjaman.text = formatRupiah(latest.amount.toDouble())
+                        tvTotalTenor.text = "${latest.tenor} Bulan"
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        tvTotalPinjaman.text = "Rp -"
+                        tvTotalTenor.text = "- Bulan"
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Log.e("PengajuanTerbaru", "Error: ${e.message}", e)
+                    tvTotalPinjaman.text = "Rp -"
+                    tvTotalTenor.text = "- Bulan"
+                }
+            }
+        }
+    }
 
 }
+
