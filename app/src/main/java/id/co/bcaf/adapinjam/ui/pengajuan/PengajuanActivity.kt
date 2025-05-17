@@ -103,7 +103,12 @@ class PengajuanActivity : AppCompatActivity() {
                     Toast.makeText(this@PengajuanActivity, "Pengajuan berhasil", Toast.LENGTH_LONG).show()
                     finish()
                 } else {
-                    Toast.makeText(this@PengajuanActivity, "Pengajuan gagal: ${response.message()}", Toast.LENGTH_LONG).show()
+                    val errorMsg = response.errorBody()?.string() ?: "Pengajuan gagal: ${response.message()}"
+                    if (errorMsg.contains("masih ada yang direview", ignoreCase = true)) {
+                        Toast.makeText(this@PengajuanActivity, "Pengajuan anda masih ada yang direview. Silahkan pantau terus pengajuan anda.", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(this@PengajuanActivity, errorMsg, Toast.LENGTH_LONG).show()
+                    }
                 }
             } catch (e: Exception) {
                 Toast.makeText(this@PengajuanActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
