@@ -3,6 +3,7 @@ package id.co.bcaf.adapinjam.ui.EditProfil
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.Image
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.fragment.ProfilSayaFragment
 import id.co.bcaf.adapinjam.data.model.UserCustomerRequest
@@ -43,14 +45,20 @@ class EditProfilActivity : AppCompatActivity() {
     private lateinit var statusRumah: EditText
     private lateinit var btnBack: ImageView
     private lateinit var btnSubmit: Button
-    private lateinit var imagePreview: ImageView
+    private lateinit var imageKtp: ImageView
+    private lateinit var imageSelfie: ImageView
 
     private var customerId: String? = null
-    private val CAMERA_REQUEST_CODE = 100
-    private val GALLERY_REQUEST_CODE = 102
+    private val REQUEST_KTP_CAMERA = 101
+    private val REQUEST_SELFIE_CAMERA = 102
+    private val REQUEST_KTP_GALLERY = 103
+    private val REQUEST_SELFIE_GALLERY = 104
 
-    private var imageUri: Uri? = null
-    private var imageFile: File? = null
+    private var uriKtp: Uri? = null
+    private var uriSelfie: Uri? = null
+
+    private var fileKtp: File? = null
+    private var fileSelfie: File? = null
 
     private val genderOptions = arrayOf("Laki-laki", "Perempuan")
 
@@ -74,7 +82,8 @@ class EditProfilActivity : AppCompatActivity() {
         statusRumah = findViewById(R.id.StatusRumah)
         btnBack = findViewById(R.id.btnBack)
         btnSubmit = findViewById(R.id.btnAddDetail)
-        imagePreview = findViewById(R.id.fotoProfil)
+        imageKtp = findViewById(R.id.fotoKtp)
+        imageSelfie = findViewById(R.id.fotoSelfie)
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderOptions)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -84,35 +93,56 @@ class EditProfilActivity : AppCompatActivity() {
         btnBack.setOnClickListener { onBackPressed() }
         btnSubmit.setOnClickListener { showConfirmationDialog() }
 
-        findViewById<Button>(R.id.btnUploadFoto).setOnClickListener { openGallery() }
-        findViewById<Button>(R.id.btnAmbilFoto).setOnClickListener { openCamera() }
+        findViewById<Button>(R.id.btnKtpCameraEdit).setOnClickListener {
+            openCamera(REQUEST_KTP_CAMERA)
+        }
+
+        findViewById<Button>(R.id.btnKtpGalleryEdit).setOnClickListener {
+            openGallery(REQUEST_KTP_GALLERY)
+        }
+
+        findViewById<Button>(R.id.btnSelfieCameraEdit).setOnClickListener {
+            openCamera(REQUEST_SELFIE_CAMERA)
+        }
+
+        findViewById<Button>(R.id.btnSelfieGalleryEdit).setOnClickListener {
+            openGallery(REQUEST_SELFIE_GALLERY)
+        }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 101)
             }
         }
-
         observeViewModel()
         getProfileData()
     }
 
-    private fun openCamera() {
+    private fun openCamera(requestCode: Int) {
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
-        imageFile = File.createTempFile("photo_", ".jpg", cacheDir)
-        imageUri = FileProvider.getUriForFile(this, "${packageName}.provider", imageFile!!)
+        when (requestCode) {
+            REQUEST_KTP_CAMERA -> {
+                fileKtp = File.createTempFile("ktp_", ".jpg", cacheDir)
+                uriKtp = FileProvider.getUriForFile(this, "${packageName}.provider", fileKtp!!)
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriKtp)
+            }
+            REQUEST_SELFIE_CAMERA -> {
+                fileSelfie = File.createTempFile("selfie_", ".jpg", cacheDir)
+                uriSelfie = FileProvider.getUriForFile(this, "${packageName}.provider", fileSelfie!!)
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriSelfie)
+            }
+            else -> return
+        }
 
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
         cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-
-        startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE)
+        startActivityForResult(cameraIntent, requestCode)
     }
 
-    private fun openGallery() {
+    private fun openGallery(requestCode: Int) {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
-        startActivityForResult(intent, GALLERY_REQUEST_CODE)
+        startActivityForResult(intent, requestCode)
     }
 
 //    private fun createImageFile(): File {
@@ -123,38 +153,65 @@ class EditProfilActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if (resultCode == RESULT_OK) {
             when (requestCode) {
-                CAMERA_REQUEST_CODE -> {
-                    imageUri?.let {
-                        imagePreview.setImageURI(it)
-                        uploadImageToServer(it)
+                REQUEST_KTP_CAMERA -> {
+                    uriKtp?.let {
+                        imageKtp.setImageURI(it)
+                        fileKtp = uriToFile(it)
+                        uploadImageToServer()
                     }
                 }
-                GALLERY_REQUEST_CODE -> {
-                    val selectedImageUri = data?.data
-                    if (selectedImageUri != null) {
-                        imageUri = selectedImageUri
-                        imagePreview.setImageURI(imageUri)
-                        uploadImageToServer(imageUri!!)
+                REQUEST_SELFIE_CAMERA -> {
+                    uriSelfie?.let {
+                        imageSelfie.setImageURI(it)
+                        fileSelfie = uriToFile(it)
+                        uploadImageToServer()
+                    }
+                }
+                REQUEST_KTP_GALLERY -> {
+                    val selectedUri = data?.data
+                    if (selectedUri != null) {
+                        uriKtp = selectedUri
+                        imageKtp.setImageURI(selectedUri)
+                        fileKtp = uriToFile(selectedUri)
+                        uploadImageToServer()
+                    }
+                }
+                REQUEST_SELFIE_GALLERY -> {
+                    val selectedUri = data?.data
+                    if (selectedUri != null) {
+                        uriSelfie = selectedUri
+                        imageSelfie.setImageURI(selectedUri)
+                        fileSelfie = uriToFile(selectedUri)
+                        uploadImageToServer()
                     }
                 }
             }
         }
     }
 
-    private fun uploadImageToServer(uri: Uri) {
+    private fun uploadImageToServer() {
         val token = sharedPref.getToken() ?: return
         val id = customerId ?: return
 
-        val filePath = uriToFile(uri)
-        if (filePath != null) {
-            val requestFile = filePath.asRequestBody("image/*".toMediaTypeOrNull())
-            val body = MultipartBody.Part.createFormData("file", filePath.name, requestFile)
-            viewModel.uploadFotoProfil(token, id, body)
-        } else {
-            Toast.makeText(this, "Gagal membaca file", Toast.LENGTH_SHORT).show()
+        val partKtp = fileKtp?.let {
+            val requestFile = it.asRequestBody("image/*".toMediaTypeOrNull())
+            MultipartBody.Part.createFormData("fotoKtp", it.name, requestFile)
         }
+
+        val partSelfie = fileSelfie?.let {
+            val requestFile = it.asRequestBody("image/*".toMediaTypeOrNull())
+            MultipartBody.Part.createFormData("fotoSelfie", it.name, requestFile)
+        }
+
+        if (partKtp == null && partSelfie == null) {
+            Toast.makeText(this, "Silakan unggah minimal satu foto", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        viewModel.uploadFotoProfil(token, id, partKtp, partSelfie)
     }
 
     private fun uriToFile(uri: Uri): File? {
@@ -221,26 +278,52 @@ class EditProfilActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.fetchProfileResult.observe(this) { result ->
-            result.onSuccess { updateUI(it) }
-            result.onFailure {
-                Toast.makeText(this, "Gagal memuat profil: ${it.message}", Toast.LENGTH_SHORT).show()
+        viewModel.profileLiveData.observe(this) { response ->
+            if (response != null) {
+                customerId = response.id.toString()
+                nik.setText(response.nik)
+                tempatLahir.setText(response.tempatLahir)
+                tanggalLahir.setText(response.tanggalLahir)
+                jenisKelaminSpinner.setSelection(genderOptions.indexOf(response.jenisKelamin))
+                telepon.setText(response.noTelp)
+                alamat.setText(response.alamat)
+                ibuKandung.setText(response.namaIbuKandung)
+                pekerjaan.setText(response.pekerjaan)
+                gaji.setText(response.gaji?.toString() ?: "")
+                rekening.setText(response.noRek)
+                statusRumah.setText(response.statusRumah)
+
+                Glide.with(this)
+                    .load(response.fotoKtp)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imageKtp)
+
+                Glide.with(this)
+                    .load(response.fotoSelfie)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imageSelfie)
             }
         }
+
+        viewModel.uploadFotoResult.observe(this) { result ->
+            result.onSuccess {
+                Toast.makeText(this, "Foto berhasil diupload", Toast.LENGTH_SHORT).show()
+            }.onFailure {
+                Toast.makeText(this, "Gagal upload foto", Toast.LENGTH_SHORT).show()
+            }
+        }
+
 
         viewModel.editProfileResult.observe(this) { result ->
             result.onSuccess {
                 Toast.makeText(this, "Profil berhasil diperbarui", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, ProfilSayaFragment::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                })
-                finish()
-            }
-            result.onFailure {
-                Toast.makeText(this, "Gagal memperbarui profil: ${it.message}", Toast.LENGTH_LONG).show()
+                finish() // kembali ke layar sebelumnya
+            }.onFailure {
+                Toast.makeText(this, "Gagal memperbarui profil", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     private fun updateUI(profile: UserCustomerResponse) {
         customerId = profile.id.toString()
@@ -257,9 +340,19 @@ class EditProfilActivity : AppCompatActivity() {
         statusRumah.setText(profile.statusRumah)
 
         Glide.with(this)
-            .load(profile.fotoUrl)
+            .load(profile.fotoKtp)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
             .placeholder(R.drawable.ic_image)
             .error(R.drawable.ic_image)
-            .into(imagePreview)
+            .into(imageKtp)
+
+        Glide.with(this)
+            .load(profile.fotoSelfie)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
+            .placeholder(R.drawable.ic_image)
+            .error(R.drawable.ic_image)
+            .into(imageSelfie)
     }
 }

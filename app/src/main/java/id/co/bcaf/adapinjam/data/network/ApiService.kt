@@ -46,8 +46,10 @@ interface ApiService {
     suspend fun uploadFoto(
         @Header("Authorization") token: String,
         @Path("id") id: String,
-        @Part file: MultipartBody.Part
+        @Part fotoKtp: MultipartBody.Part?,
+        @Part fotoSelfie: MultipartBody.Part?
     ): Response<ResponseBody>
+
 
     @POST("api/v1/auth/logout")
     suspend fun logout(@Header("Authorization") token: String): Response<Void>

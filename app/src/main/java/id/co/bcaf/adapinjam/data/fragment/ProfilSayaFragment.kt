@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
@@ -46,7 +47,9 @@ class ProfilSayaFragment : Fragment() {
     private lateinit var btnBack: ImageView
     private lateinit var loadingProfile: ProgressBar
 
-    private lateinit var fotoKtp: ImageView
+    private lateinit var ImageKtp: ImageView
+    private lateinit var ImageSelfie: ImageView
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,7 +67,8 @@ class ProfilSayaFragment : Fragment() {
         nameProfile = view.findViewById(R.id.nameProfile)
         emailProfile = view.findViewById(R.id.emailProfile)
 
-        fotoKtp = view.findViewById(R.id.fotoKtp)
+        ImageKtp = view.findViewById(R.id.fotoKtpEdit)
+        ImageSelfie = view.findViewById(R.id.fotoSelfieEdit)
 
         nik = view.findViewById(R.id.nik)
         tempatLahir = view.findViewById(R.id.tempatLahir)
@@ -119,13 +123,26 @@ class ProfilSayaFragment : Fragment() {
     }
 
     private fun updateUI(profile: UserCustomerResponse) {
-        val fotoUrl = profile.fotoUrl // pastikan field ini sesuai dengan nama di model
-        if (!fotoUrl.isNullOrEmpty()) {
+        val fotoKtp = profile.fotoKtp // pastikan field ini sesuai dengan nama di model
+        if (!fotoKtp.isNullOrEmpty()) {
             Glide.with(this)
-                .load(fotoUrl)
+                .load(fotoKtp)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
                 .placeholder(R.drawable.ic_image) // gunakan drawable default
                 .error(R.drawable.ic_image)
-                .into(fotoKtp)
+                .into(ImageKtp)
+        }
+
+        val fotoSelfie = profile.fotoSelfie // pastikan field ini sesuai dengan nama di model
+        if (!fotoSelfie.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(fotoSelfie)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .placeholder(R.drawable.ic_image) // gunakan drawable default
+                .error(R.drawable.ic_image)
+                .into(ImageSelfie)
         }
 
         nameProfile.text = profile.user?.name ?: "-"

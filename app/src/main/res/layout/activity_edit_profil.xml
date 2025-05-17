@@ -174,7 +174,7 @@
                 android:layout_marginBottom="32dp" />
 
             <ImageView
-                android:id="@+id/fotoProfil"
+                android:id="@+id/fotoKtp"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp"
@@ -183,14 +183,36 @@
                 android:src="@drawable/ic_image" />
 
             <Button
-                android:id="@+id/btnAmbilFoto"
+                android:id="@+id/btnKtpCameraEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Ambil Foto dari Kamera"
                 android:layout_marginTop="16dp"/>
 
             <Button
-                android:id="@+id/btnUploadFoto"
+                android:id="@+id/btnKtpGalleryEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Upload Foto dari Galeri"/>
+
+            <ImageView
+                android:id="@+id/fotoSelfie"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_image" />
+
+            <Button
+                android:id="@+id/btnSelfieCameraEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ambil Foto dari Kamera"
+                android:layout_marginTop="16dp"/>
+
+            <Button
+                android:id="@+id/btnSelfieGalleryEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Upload Foto dari Galeri"/>

@@ -20,6 +20,10 @@ class EditProfilViewModel : ViewModel() {
     private val _uploadFotoResult = MutableLiveData<Result<String>>()
     val uploadFotoResult: LiveData<Result<String>> = _uploadFotoResult
 
+    private val _profileLiveData = MutableLiveData<UserCustomerResponse>()
+    val profileLiveData: LiveData<UserCustomerResponse> = _profileLiveData
+
+
 
     fun fetchProfileData(token: String) {
         viewModelScope.launch {
@@ -28,9 +32,10 @@ class EditProfilViewModel : ViewModel() {
                     RetrofitClient.apiService.getCustomerProfile("Bearer $token")
 
                 if (response.isSuccessful && response.body() != null) {
-                    _fetchProfileResult.postValue(Result.success(response.body()!!))
+                    val user = response.body()!!
+                    _fetchProfileResult.postValue(Result.success(user))
+                    _profileLiveData.postValue(user) // Tambahkan ini
                 } else {
-                    // Log the error body or status code for debugging
                     val errorBody = response.errorBody()?.string()
                     _fetchProfileResult.postValue(Result.failure(Exception("Gagal memuat profil pengguna: $errorBody")))
                 }
@@ -39,6 +44,7 @@ class EditProfilViewModel : ViewModel() {
             }
         }
     }
+
 
 
     fun editProfile(token: String, request: UserCustomerRequest) {
@@ -58,10 +64,10 @@ class EditProfilViewModel : ViewModel() {
         }
     }
 
-    fun uploadFotoProfil(token: String, id: String, file: MultipartBody.Part) {
+    fun uploadFotoProfil(token: String, id: String, fotoKtp: MultipartBody.Part?, fotoSelfie: MultipartBody.Part?) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.apiService.uploadFoto("Bearer $token", id, file)
+                val response = RetrofitClient.apiService.uploadFoto("Bearer $token", id, fotoKtp, fotoSelfie)
                 if (response.isSuccessful) {
                     _uploadFotoResult.postValue(Result.success("Upload foto berhasil"))
                 } else {
@@ -72,4 +78,5 @@ class EditProfilViewModel : ViewModel() {
             }
         }
     }
+
 }
