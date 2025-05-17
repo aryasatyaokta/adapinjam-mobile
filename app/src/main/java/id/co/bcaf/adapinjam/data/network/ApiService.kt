@@ -50,6 +50,13 @@ interface ApiService {
         @Part fotoSelfie: MultipartBody.Part?
     ): Response<ResponseBody>
 
+    @Multipart
+    @POST("api/v1/customer/{id}/upload-profil")
+    suspend fun uploadProfil(
+        @Header("Authorization") token: String,
+        @Path("id") id: String,
+        @Part file: MultipartBody.Part
+    ): Response<ResponseBody>
 
     @POST("api/v1/auth/logout")
     suspend fun logout(@Header("Authorization") token: String): Response<Void>

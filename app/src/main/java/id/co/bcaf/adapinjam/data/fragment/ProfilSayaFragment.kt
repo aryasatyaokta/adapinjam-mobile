@@ -1,6 +1,8 @@
 package id.co.bcaf.adapinjam.data.fragment
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,11 +11,14 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.github.dhaval2404.imagepicker.ImagePicker
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
@@ -23,6 +28,10 @@ import id.co.bcaf.adapinjam.ui.EditProfil.EditProfilActivity
 import id.co.bcaf.adapinjam.ui.login.LoginActivity
 import id.co.bcaf.adapinjam.ui.profile.ProfilActivity
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import kotlin.jvm.java
 
 class ProfilSayaFragment : Fragment() {
@@ -50,6 +59,9 @@ class ProfilSayaFragment : Fragment() {
     private lateinit var ImageKtp: ImageView
     private lateinit var ImageSelfie: ImageView
 
+    private lateinit var imageViewProfile: ImageView
+
+    private var customerId: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -84,6 +96,12 @@ class ProfilSayaFragment : Fragment() {
         btnBack = view.findViewById(R.id.btnBack)
 
         loadingProfile = view.findViewById(R.id.loadingProfile)
+
+        imageViewProfile = view.findViewById(R.id.imageViewProfile)
+        val imageViewEditIcon = view.findViewById<ImageView>(R.id.imageViewEditIcon)
+
+        imageViewProfile.setOnClickListener { showImagePicker() }
+        imageViewEditIcon.setOnClickListener { showImagePicker() }
 
         val btnEdit = view.findViewById<View>(R.id.btnEditProfile)
         btnEdit.setOnClickListener {
@@ -144,7 +162,7 @@ class ProfilSayaFragment : Fragment() {
                 .error(R.drawable.ic_image)
                 .into(ImageSelfie)
         }
-
+        customerId = profile.id?.toString()
         nameProfile.text = profile.user?.name ?: "-"
         emailProfile.text = profile.user?.email ?: "-"
         nik.text = profile.nik ?: "-"
@@ -158,6 +176,82 @@ class ProfilSayaFragment : Fragment() {
         gaji.text = profile.gaji ?: "-"
         noRekening.text = profile.noRek ?: "-"
         statusRumah.text = profile.statusRumah ?: "-"
+        val fotoProfil = profile.fotoProfil // sesuaikan field-nya
+        if (!fotoProfil.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(fotoProfil)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .placeholder(R.drawable.profile)
+                .error(R.drawable.profile)
+                .circleCrop() // untuk membuat gambar menjadi bulat
+                .into(imageViewProfile)
+        }
     }
+
+    private fun showImagePicker() {
+        ImagePicker.with(this)
+            .cropSquare()
+            .compress(1024)
+            .maxResultSize(1080, 1080)
+            .createIntent { intent ->
+                startForProfileImageResult.launch(intent)
+            }
+    }
+
+    private val startForProfileImageResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val data = result.data
+            if (result.resultCode == Activity.RESULT_OK && data != null) {
+                val uri = data.data
+                uri?.let {
+                    imageViewProfile.setImageURI(uri)
+                    uploadImageToServer(uri)
+                }
+            }
+        }
+
+
+    private fun uploadImageToServer(uri: Uri) {
+        val context = requireContext()
+        val token = sharedPrefManager.getToken()
+        val id = customerId
+
+        if (token.isNullOrEmpty() || id.isNullOrEmpty()) {
+            Toast.makeText(context, "Token atau ID tidak tersedia", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val contentResolver = context.contentResolver
+        val inputStream = contentResolver.openInputStream(uri)
+        val fileName = DocumentFile.fromSingleUri(context, uri)?.name ?: "profile_image.jpg"
+        val file = File(context.cacheDir, fileName)
+
+        inputStream?.use { input ->
+            file.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.apiService.uploadProfil(
+                    "Bearer $token", id, multipartBody
+                )
+                if (response.isSuccessful) {
+                    Toast.makeText(context, "Upload berhasil", Toast.LENGTH_SHORT).show()
+                    getProfileData()
+                } else {
+                    Toast.makeText(context, "Gagal upload: ${response.code()}", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 }
 
