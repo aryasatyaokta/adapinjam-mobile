@@ -175,47 +175,27 @@
 
             <ImageView
                 android:id="@+id/fotoKtp"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp"
-                android:layout_gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_image" />
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop" />
 
             <Button
-                android:id="@+id/btnKtpCameraEdit"
+                android:id="@+id/btnPickKtp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ambil Foto dari Kamera"
-                android:layout_marginTop="16dp"/>
-
-            <Button
-                android:id="@+id/btnKtpGalleryEdit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Upload Foto dari Galeri"/>
+                android:text="Pilih Foto KTP" />
 
             <ImageView
                 android:id="@+id/fotoSelfie"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp"
-                android:layout_gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_image" />
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop" />
 
             <Button
-                android:id="@+id/btnSelfieCameraEdit"
+                android:id="@+id/btnPickSelfie"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ambil Foto dari Kamera"
-                android:layout_marginTop="16dp"/>
-
-            <Button
-                android:id="@+id/btnSelfieGalleryEdit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Upload Foto dari Galeri"/>
+                android:text="Pilih Foto Selfie" />
 
 
             <!-- Tombol Submit -->
@@ -228,10 +208,11 @@
                 android:padding="14dp"
                 android:text="Submit"
                 android:textAllCaps="false"
+                android:layout_marginTop="20dp"
                 android:textColor="#FFFFFF" />
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="35dp" />
+                android:layout_height="30dp" />
         </LinearLayout>
 
     </ScrollView>

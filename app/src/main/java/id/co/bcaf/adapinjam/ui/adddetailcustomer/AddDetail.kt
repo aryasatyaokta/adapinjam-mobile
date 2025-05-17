@@ -1,5 +1,6 @@
 package id.co.bcaf.adapinjam.ui.adddetailcustomer
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.ProgressDialog
 import android.content.Context
@@ -15,6 +16,7 @@ import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.model.UserCustomerRequest
@@ -46,6 +48,9 @@ class AddDetail : AppCompatActivity() {
     private val REQUEST_KTP_GALLERY = 103
     private val REQUEST_SELFIE_GALLERY = 104
 
+    private val REQUEST_KTP = 201
+    private val REQUEST_SELFIE = 202
+
     private var uriKtp: Uri? = null
     private var uriSelfie: Uri? = null
 
@@ -71,21 +76,22 @@ class AddDetail : AppCompatActivity() {
             showDatePickerDialog()
         }
 
-        findViewById<Button>(R.id.btnKtpCamera).setOnClickListener {
-            openCamera(REQUEST_KTP_CAMERA)
+        findViewById<Button>(R.id.btnKtpPicker).setOnClickListener {
+            ImagePicker.with(this)
+                .crop()
+                .compress(1024)
+                .maxResultSize(1080, 1080)
+                .start(REQUEST_KTP)
         }
 
-        findViewById<Button>(R.id.btnKtpGallery).setOnClickListener {
-            openGallery(REQUEST_KTP_GALLERY)
+        findViewById<Button>(R.id.btnSelfiePicker).setOnClickListener {
+            ImagePicker.with(this)
+                .crop()
+                .compress(1024)
+                .maxResultSize(1080, 1080)
+                .start(REQUEST_SELFIE)
         }
 
-        findViewById<Button>(R.id.btnSelfieCamera).setOnClickListener {
-            openCamera(REQUEST_SELFIE_CAMERA)
-        }
-
-        findViewById<Button>(R.id.btnSelfieGallery).setOnClickListener {
-            openGallery(REQUEST_SELFIE_GALLERY)
-        }
 
         findViewById<Button>(R.id.btnAddDetail).setOnClickListener {
             submitForm()
@@ -214,19 +220,28 @@ class AddDetail : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK) {
+
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            val uri = data.data!!
             when (requestCode) {
-                REQUEST_KTP_CAMERA, REQUEST_KTP_GALLERY -> {
-                    uriKtp = if (requestCode == REQUEST_KTP_GALLERY) data?.data else uriKtp
+                REQUEST_KTP -> {
+                    uriKtp = uri
+                    fileKtp = File(uri.path!!)
                     findViewById<ImageView>(R.id.imageKtp).setImageURI(uriKtp)
                 }
-                REQUEST_SELFIE_CAMERA, REQUEST_SELFIE_GALLERY -> {
-                    uriSelfie = if (requestCode == REQUEST_SELFIE_GALLERY) data?.data else uriSelfie
+                REQUEST_SELFIE -> {
+                    uriSelfie = uri
+                    fileSelfie = File(uri.path!!)
                     findViewById<ImageView>(R.id.imageSelfie).setImageURI(uriSelfie)
                 }
             }
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Dibatalkan", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()

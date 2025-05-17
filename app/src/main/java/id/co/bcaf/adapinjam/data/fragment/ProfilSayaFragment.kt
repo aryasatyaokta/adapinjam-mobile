@@ -106,7 +106,7 @@ class ProfilSayaFragment : Fragment() {
         val btnEdit = view.findViewById<View>(R.id.btnEditProfile)
         btnEdit.setOnClickListener {
             val intent = Intent(requireContext(), EditProfilActivity::class.java)
-            startActivity(intent)
+            editProfileLauncher.launch(intent)
         }
 
         btnBack.setOnClickListener {
@@ -128,6 +128,13 @@ class ProfilSayaFragment : Fragment() {
         }
 
         getProfileData()
+    }
+
+    private val editProfileLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Refresh data profil setelah edit berhasil
+            getProfileData()
+        }
     }
 
     private fun getProfileData() {
@@ -210,7 +217,6 @@ class ProfilSayaFragment : Fragment() {
                 }
             }
         }
-
 
     private fun uploadImageToServer(uri: Uri) {
         val context = requireContext()

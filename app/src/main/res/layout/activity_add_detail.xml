@@ -174,44 +174,27 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:background="#DDD"
-            android:layout_marginBottom="0dp"/>
+            android:background="#DDD" />
 
         <Button
-            android:id="@+id/btnKtpGallery"
+            android:id="@+id/btnKtpPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Upload Foto dari Galeri"
-            android:layout_marginTop="16dp"/>
-
-        <Button
-            android:id="@+id/btnKtpCamera"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ambil Foto"
-            android:layout_marginBottom="10dp" />
+            android:text="Pilih Foto KTP" />
 
         <ImageView
             android:id="@+id/imageSelfie"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:background="#DDD"
-            android:layout_marginTop="30dp"/>
+            android:background="#DDD" />
 
         <Button
-            android:id="@+id/btnSelfieGallery"
+            android:id="@+id/btnSelfiePicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Upload Foto dari Galeri"
-            android:layout_marginTop="16dp"/>
+            android:text="Pilih Foto Selfie" />
 
-        <Button
-            android:id="@+id/btnSelfieCamera"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ambil Foto"
-            android:layout_marginBottom="10dp" />
 
         <!-- Tombol Submit -->
         <Button
