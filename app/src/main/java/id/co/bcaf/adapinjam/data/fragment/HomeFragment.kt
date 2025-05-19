@@ -110,6 +110,10 @@ class HomeFragment : Fragment() {
                     tvJenisPlafon.text = jenisPlafon
                     tvJumlahPlafon.text = formattedPlafon
                     tvSisaPlafon.text = if (jumlahPlafonValue > 0) formattedPlafon else "Rp -"
+
+                    fadeIn(tvJenisPlafon)
+                    fadeIn(tvJumlahPlafon)
+                    fadeIn(tvSisaPlafon)
                 } else {
                     tvJenisPlafon.text = "-"
                     tvJumlahPlafon.text = "Rp -"
@@ -139,6 +143,7 @@ class HomeFragment : Fragment() {
                 // Tampilkan di UI
                 withContext(Dispatchers.Main) {
                     tvSisaHutang.text = if (totalHutang > 0) formatRupiah(totalHutang) else "Rp -"
+                    fadeIn(tvSisaHutang)
                 }
             } catch (e: Exception) {
                 // Tangani jika error (misal gagal koneksi, token salah, dll)
@@ -218,6 +223,7 @@ class HomeFragment : Fragment() {
                     val plafonList = response.body()!!
                     plafonAdapter = PlafonAdapter(plafonList)
                     rvAllPlafon.adapter = plafonAdapter
+                    fadeIn(rvAllPlafon)
                 } else {
                     if (!isAdded) return@launch
 
@@ -255,6 +261,8 @@ class HomeFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         tvTotalPinjaman.text = formatRupiah(latest.amount.toDouble())
                         tvTotalTenor.text = "${latest.tenor} Bulan"
+                        fadeIn(tvTotalPinjaman)
+                        fadeIn(tvTotalTenor)
                     }
                 } else {
                     withContext(Dispatchers.Main) {
@@ -270,6 +278,15 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun fadeIn(view: View, duration: Long = 500) {
+        view.alpha = 0f
+        view.visibility = View.VISIBLE
+        view.animate()
+            .alpha(1f)
+            .setDuration(duration)
+            .setListener(null)
     }
 
 }

@@ -172,6 +172,7 @@ class ProfilSayaFragment : Fragment() {
         customerId = profile.id?.toString()
         nameProfile.text = profile.user?.name ?: "-"
         emailProfile.text = profile.user?.email ?: "-"
+        emailProfile.fadeIn()
         nik.text = profile.nik ?: "-"
         tempatLahir.text = profile.tempatLahir ?: "-"
         tanggalLahir.text = profile.tanggalLahir ?: "-"
@@ -194,6 +195,23 @@ class ProfilSayaFragment : Fragment() {
                 .circleCrop() // untuk membuat gambar menjadi bulat
                 .into(imageViewProfile)
         }
+        nameProfile.fadeIn()
+        emailProfile.fadeIn()
+        nik.fadeIn()
+        tempatLahir.fadeIn()
+        tanggalLahir.fadeIn()
+        jenisKelamin.fadeIn()
+        noTelp.fadeIn()
+        alamat.fadeIn()
+        namaIbu.fadeIn()
+        pekerjaan.fadeIn()
+        gaji.fadeIn()
+        noRekening.fadeIn()
+        statusRumah.fadeIn()
+        ImageKtp.fadeIn()
+        ImageSelfie.fadeIn()
+        imageViewProfile.fadeIn()
+
     }
 
     private fun showImagePicker() {
@@ -258,6 +276,16 @@ class ProfilSayaFragment : Fragment() {
             }
         }
     }
+
+    fun View.fadeIn(duration: Long = 500) {
+        this.alpha = 0f
+        this.visibility = View.VISIBLE
+        this.animate()
+            .alpha(1f)
+            .setDuration(duration)
+            .setListener(null)
+    }
+
 
 }
 
