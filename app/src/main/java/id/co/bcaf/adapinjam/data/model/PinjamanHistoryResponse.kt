@@ -8,5 +8,7 @@ data class PinjamanHistoryResponse (
     val bunga: Double,
     val sisaTenor: Int,
     val sisaPokokHutang: Double,
-    val lunas: Boolean
+    val lunas: Boolean,
+    val biayaAdmin: Double,
+    val totalDanaDidapat: Double,
 )

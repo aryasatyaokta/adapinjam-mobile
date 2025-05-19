@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -23,6 +25,8 @@ import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.NumberFormat
+import java.util.Locale
 
 class PengajuanActivity : AppCompatActivity() {
 
@@ -38,6 +42,34 @@ class PengajuanActivity : AppCompatActivity() {
         setContentView(R.layout.activity_pengajuan)
 
         etJumlahPinjaman = findViewById(R.id.etJumlahPinjaman)
+        etJumlahPinjaman.addTextChangedListener(object : TextWatcher {
+            private var current = ""
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s.toString() != current) {
+                    etJumlahPinjaman.removeTextChangedListener(this)
+
+                    val cleanString = s.toString().replace("[Rp,.\\s]".toRegex(), "")
+                    if (cleanString.isNotEmpty()) {
+                        val parsed = cleanString.toDouble()
+                        val formatted = formatRupiah(parsed)
+
+                        current = formatted
+                        etJumlahPinjaman.setText(formatted)
+                        etJumlahPinjaman.setSelection(formatted.length)
+                    } else {
+                        current = ""
+                    }
+
+                    etJumlahPinjaman.addTextChangedListener(this)
+                }
+            }
+        })
+
         etJumlahTenor = findViewById(R.id.etJumlahTenor)
         btnAjukan = findViewById(R.id.btnAjukan)
         sharedPref = SharedPrefManager(this)
@@ -76,7 +108,8 @@ class PengajuanActivity : AppCompatActivity() {
 
 
     private fun submitPengajuan(latitude: Double, longitude: Double) {
-        val amount = etJumlahPinjaman.text.toString().toDoubleOrNull()
+        val amountStr = etJumlahPinjaman.text.toString().replace("[Rp,.\\s]".toRegex(), "")
+        val amount = amountStr.toDoubleOrNull()
         val tenor = etJumlahTenor.text.toString().toIntOrNull()
 
         if (amount == null || tenor == null) {
@@ -98,7 +131,6 @@ class PengajuanActivity : AppCompatActivity() {
                 val response = withContext(Dispatchers.IO) {
                     RetrofitClient.apiService.createPengajuan("Bearer $token", request)
                 }
-
                 if (response.isSuccessful && response.body() != null) {
                     Toast.makeText(this@PengajuanActivity, "Pengajuan berhasil", Toast.LENGTH_LONG).show()
                     finish()
@@ -117,7 +149,8 @@ class PengajuanActivity : AppCompatActivity() {
     }
 
     private fun showConfirmationDialog(latitude: Double, longitude: Double) {
-        val amount = etJumlahPinjaman.text.toString().toDoubleOrNull()
+        val amountStr = etJumlahPinjaman.text.toString().replace("[Rp,.\\s]".toRegex(), "")
+        val amount = amountStr.toDoubleOrNull()
         val tenor = etJumlahTenor.text.toString().toIntOrNull()
 
         if (amount == null || tenor == null) {
@@ -125,11 +158,16 @@ class PengajuanActivity : AppCompatActivity() {
             return
         }
 
+        val biayaAdmin = 50000  // misal biaya admin tetap
+        val totalDanaDidapat = amount - biayaAdmin
+
         val message = """
         Apakah data Anda sudah benar untuk mengajukan pinjaman?
         
-        Jumlah Pinjaman: Rp $amount
-        Tenor: $tenor bulan
+        Jumlah Pinjaman : ${formatRupiah(amount)}
+        Tenor           : $tenor bulan
+        Biaya Admin     : ${formatRupiah(biayaAdmin)}
+        Dana Diterima   : ${formatRupiah(totalDanaDidapat)}
     """.trimIndent()
 
         val builder = androidx.appcompat.app.AlertDialog.Builder(this)
@@ -142,5 +180,10 @@ class PengajuanActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun formatRupiah(amount: Number): String {
+        val localeID = Locale("in", "ID")
+        val numberFormat = NumberFormat.getNumberInstance(localeID)
+        return "Rp ${numberFormat.format(amount)}"
+    }
 
 }

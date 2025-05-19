@@ -93,6 +93,50 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/Bunga" />
 
+            <TextView
+                android:id="@+id/tvAdmin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Admin"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="@id/tvTenor"
+                app:layout_constraintTop_toBottomOf="@id/tvTenor" />
+
+            <TextView
+                android:id="@+id/Admin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rp 2.000.000"
+                android:textColor="#003E9A"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/Tenor" />
+
+            <TextView
+                android:id="@+id/tvDanaDidapat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dana Didapat"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="@id/tvAdmin"
+                app:layout_constraintTop_toBottomOf="@id/tvAdmin" />
+
+            <TextView
+                android:id="@+id/Dana"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rp 2.000.000"
+                android:textColor="#003E9A"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/Admin" />
+
             <!-- Garis Putus -->
             <View
                 android:id="@+id/dashedLine"
@@ -100,7 +144,7 @@
                 android:layout_height="2dp"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/dashed_line"
-                app:layout_constraintTop_toBottomOf="@id/Tenor"
+                app:layout_constraintTop_toBottomOf="@id/Dana"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 

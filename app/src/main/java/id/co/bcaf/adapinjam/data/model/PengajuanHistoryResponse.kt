@@ -7,6 +7,8 @@ data class PengajuanHistoryResponse(
     val bunga: Double,
     val angsuran: Double,
     val status: String,
+    val biayaAdmin: Double,
+    val totalDanaDidapat: Double,
     val marketingApprovedAt: String?,
     val branchManagerApprovedAt: String?,
     val backOfficeApprovedAt: String?,

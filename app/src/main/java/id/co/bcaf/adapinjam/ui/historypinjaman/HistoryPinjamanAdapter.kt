@@ -21,6 +21,8 @@ class HistoryPinjamanAdapter(private val list: List<PinjamanHistoryResponse>) :
         val status: TextView = view.findViewById(R.id.statusLabel)
         val tenors: TextView = view.findViewById(R.id.Tenor)
         val sisaTenor: TextView = view.findViewById(R.id.sisaTenor)
+        val dana: TextView = view.findViewById(R.id.Dana)
+        val admin: TextView = view.findViewById(R.id.Admin)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -41,6 +43,8 @@ class HistoryPinjamanAdapter(private val list: List<PinjamanHistoryResponse>) :
         holder.status.text = if (pinjaman.lunas) "Lunas" else "Belum Lunas"
         holder.tenors.text = "${pinjaman.tenor} Bulan"
         holder.sisaTenor.text = "${pinjaman.sisaTenor} Bulan"
+        holder.dana.text = formatRupiah(pinjaman.totalDanaDidapat)
+        holder.admin.text = formatRupiah(pinjaman.biayaAdmin)
     }
 
     private fun formatRupiah(amount: Double): String {

@@ -12,6 +12,8 @@ data class PengajuanResponse(
     val angsuran: Double,
     val status: String,
     val branchId: UUID,
+    val biayaAdmin: Double,
+    val totalDanaDidapat: Double,
     val namaMarketing: String,
     val createdAt: String,
     val marketingApprovedAt: String?,
