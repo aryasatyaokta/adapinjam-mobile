@@ -1,6 +1,7 @@
 package id.co.bcaf.adapinjam.ui.adddetailcustomer
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.ProgressDialog
 import android.content.Context
@@ -42,11 +43,6 @@ class AddDetail : AppCompatActivity() {
 
     private lateinit var tanggalLahir: EditText
     private lateinit var jenisKelamin: Spinner
-
-    private val REQUEST_KTP_CAMERA = 101
-    private val REQUEST_SELFIE_CAMERA = 102
-    private val REQUEST_KTP_GALLERY = 103
-    private val REQUEST_SELFIE_GALLERY = 104
 
     private val REQUEST_KTP = 201
     private val REQUEST_SELFIE = 202
@@ -110,32 +106,116 @@ class AddDetail : AppCompatActivity() {
     }
 
     private fun submitForm() {
-        val nik = findViewById<EditText>(R.id.Nik).text.toString()
-        val tempatLahir = findViewById<EditText>(R.id.TempatLahir).text.toString()
-        val tanggalLahirStr = tanggalLahir.text.toString()
+        val nikField = findViewById<EditText>(R.id.Nik)
+        val tempatLahirField = findViewById<EditText>(R.id.TempatLahir)
+        val noTelpField = findViewById<EditText>(R.id.Telepon)
+        val alamatField = findViewById<EditText>(R.id.Alamat)
+        val ibuKandungField = findViewById<EditText>(R.id.IbuKandung)
+        val pekerjaanField = findViewById<EditText>(R.id.Pekerjaan)
+        val gajiField = findViewById<EditText>(R.id.Gaji)
+        val noRekField = findViewById<EditText>(R.id.Rekening)
+        val statusRumahField = findViewById<EditText>(R.id.StatusRumah)
+
+        val nik = nikField.text.toString().trim()
+        val tempatLahir = tempatLahirField.text.toString().trim()
+        val tanggalLahirStr = tanggalLahir.text.toString().trim()
         val jenisKelaminStr = jenisKelamin.selectedItem.toString()
-        val noTelp = findViewById<EditText>(R.id.Telepon).text.toString()
-        val alamat = findViewById<EditText>(R.id.Alamat).text.toString()
-        val ibuKandung = findViewById<EditText>(R.id.IbuKandung).text.toString()
-        val pekerjaan = findViewById<EditText>(R.id.Pekerjaan).text.toString()
-        val gaji = findViewById<EditText>(R.id.Gaji).text.toString().toIntOrNull() ?: 0
-        val noRek = findViewById<EditText>(R.id.Rekening).text.toString()
-        val statusRumah = findViewById<EditText>(R.id.StatusRumah).text.toString()
+        val noTelp = noTelpField.text.toString().trim()
+        val alamat = alamatField.text.toString().trim()
+        val ibuKandung = ibuKandungField.text.toString().trim()
+        val pekerjaan = pekerjaanField.text.toString().trim()
+        val gajiStr = gajiField.text.toString().trim()
+        val noRek = noRekField.text.toString().trim()
+        val statusRumah = statusRumahField.text.toString().trim()
+
+        when {
+            nik.isEmpty() -> {
+                nikField.error = "NIK harus diisi"
+                nikField.requestFocus()
+                return
+            }
+            tempatLahir.isEmpty() -> {
+                tempatLahirField.error = "Tempat lahir harus diisi"
+                tempatLahirField.requestFocus()
+                return
+            }
+            tanggalLahirStr.isEmpty() -> {
+                tanggalLahir.error = "Tanggal lahir harus diisi"
+                tanggalLahir.requestFocus()
+                return
+            }
+            noTelp.isEmpty() -> {
+                noTelpField.error = "Nomor telepon harus diisi"
+                noTelpField.requestFocus()
+                return
+            }
+            alamat.isEmpty() -> {
+                alamatField.error = "Alamat harus diisi"
+                alamatField.requestFocus()
+                return
+            }
+            ibuKandung.isEmpty() -> {
+                ibuKandungField.error = "Nama ibu kandung harus diisi"
+                ibuKandungField.requestFocus()
+                return
+            }
+            pekerjaan.isEmpty() -> {
+                pekerjaanField.error = "Pekerjaan harus diisi"
+                pekerjaanField.requestFocus()
+                return
+            }
+            gajiStr.isEmpty() -> {
+                gajiField.error = "Gaji harus diisi"
+                gajiField.requestFocus()
+                return
+            }
+            noRek.isEmpty() -> {
+                noRekField.error = "Nomor rekening harus diisi"
+                noRekField.requestFocus()
+                return
+            }
+            statusRumah.isEmpty() -> {
+                statusRumahField.error = "Status rumah harus diisi"
+                statusRumahField.requestFocus()
+                return
+            }
+            uriKtp == null -> {
+                showSnackbar("Silakan upload foto KTP", true)
+                return
+            }
+            uriSelfie == null -> {
+                showSnackbar("Silakan upload foto selfie", true)
+                return
+            }
+        }
+
+        val gaji = gajiStr.toIntOrNull() ?: 0
 
         val customerRequest = UserCustomerRequest(
-            nik = nik, tempatLahir = tempatLahir, tanggalLahir = tanggalLahirStr, jenisKelamin = jenisKelaminStr, noTelp = noTelp,
-            alamat = alamat, namaIbuKandung = ibuKandung, pekerjaan = pekerjaan, gaji = gaji, noRek = noRek, statusRumah = statusRumah
+            nik = nik, tempatLahir = tempatLahir, tanggalLahir = tanggalLahirStr,
+            jenisKelamin = jenisKelaminStr, noTelp = noTelp, alamat = alamat,
+            namaIbuKandung = ibuKandung, pekerjaan = pekerjaan, gaji = gaji,
+            noRek = noRek, statusRumah = statusRumah
         )
 
-        val token = sharedPrefManager.getToken() ?: ""
-        if (token.isNotEmpty()) {
-            progressDialog.setMessage("Submitting...")
-            progressDialog.show()
-            submitCustomerDetails(token, customerRequest)
-        } else {
-            showSnackbar("Token is missing", true)
-        }
+        // Konfirmasi sebelum kirim
+        AlertDialog.Builder(this)
+            .setTitle("Konfirmasi")
+            .setMessage("Apakah data Anda sudah benar semua?")
+            .setPositiveButton("Ya") { _, _ ->
+                val token = sharedPrefManager.getToken() ?: ""
+                if (token.isNotEmpty()) {
+                    progressDialog.setMessage("Submitting...")
+                    progressDialog.show()
+                    submitCustomerDetails(token, customerRequest)
+                } else {
+                    showSnackbar("Token is missing", true)
+                }
+            }
+            .setNegativeButton("Periksa Lagi", null)
+            .show()
     }
+
 
     private fun submitCustomerDetails(token: String, customerRequest: UserCustomerRequest) {
         CoroutineScope(Dispatchers.Main).launch {
@@ -143,6 +223,11 @@ class AddDetail : AppCompatActivity() {
                 val response = RetrofitClient.apiService.addCustomerDetails("Bearer $token", customerRequest)
                 if (response.isSuccessful && response.body() != null) {
                     val customerId = response.body()!!.id
+
+                    // Tampilkan Toast
+                    Toast.makeText(this@AddDetail, "Data berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+
+                    // Lanjut ke upload foto
                     uploadCustomerPhoto(token, customerId.toString())
                 } else {
                     progressDialog.dismiss()
@@ -154,6 +239,7 @@ class AddDetail : AppCompatActivity() {
             }
         }
     }
+
 
     private fun uploadCustomerPhoto(token: String, customerId: String) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -190,32 +276,6 @@ class AddDetail : AppCompatActivity() {
         inputStream?.use { input -> outputStream.use { output -> input.copyTo(output) } }
         val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
         return MultipartBody.Part.createFormData(fieldName, file.name, requestFile)
-    }
-
-    private fun openCamera(requestCode: Int) {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val file = File.createTempFile("img_", ".jpg", cacheDir)
-        val uri = FileProvider.getUriForFile(this, "${packageName}.provider", file)
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
-
-        when (requestCode) {
-            REQUEST_KTP_CAMERA -> {
-                uriKtp = uri
-                fileKtp = file
-            }
-            REQUEST_SELFIE_CAMERA -> {
-                uriSelfie = uri
-                fileSelfie = file
-            }
-        }
-
-        startActivityForResult(intent, requestCode)
-    }
-
-    private fun openGallery(requestCode: Int) {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        startActivityForResult(intent, requestCode)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

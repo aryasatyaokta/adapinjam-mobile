@@ -13,6 +13,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
     @POST("api/v1/auth/login")
@@ -89,4 +90,12 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: PengajuanRequest,
     ): Response<PengajuanResponse>
+
+    @GET("api/v1/pengajuan/preview")
+    suspend fun previewPengajuan(
+        @Query("amount") amount: Double,
+        @Query("tenor") tenor: Int,
+        @Header("Authorization") token: String
+    ): PreviewResponse
+
 }

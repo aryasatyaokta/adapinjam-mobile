@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 //    private const val BASE_URL = "http://35.223.1.74/be/"
-    private const val BASE_URL = "https://f09c-120-188-37-34.ngrok-free.app/be/" // Ganti dengan URL API kamu
+    private const val BASE_URL = "https://0ce3-180-252-160-168.ngrok-free.app/be/" // Ganti dengan URL API kamu
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(60, TimeUnit.SECONDS) // Set connect timeout

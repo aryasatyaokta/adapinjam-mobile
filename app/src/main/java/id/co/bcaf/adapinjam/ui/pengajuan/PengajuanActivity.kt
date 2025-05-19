@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
@@ -158,27 +159,52 @@ class PengajuanActivity : AppCompatActivity() {
             return
         }
 
-        val biayaAdmin = 50000  // misal biaya admin tetap
-        val totalDanaDidapat = amount - biayaAdmin
+        val token = SharedPrefManager(this).getToken()
+        if (token == null) {
+            Toast.makeText(this, "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        val message = """
-        Apakah data Anda sudah benar untuk mengajukan pinjaman?
-        
-        Jumlah Pinjaman : ${formatRupiah(amount)}
-        Tenor           : $tenor bulan
-        Biaya Admin     : ${formatRupiah(biayaAdmin)}
-        Dana Diterima   : ${formatRupiah(totalDanaDidapat)}
-    """.trimIndent()
+        lifecycleScope.launch {
+            try {
+                val preview = RetrofitClient.apiService.previewPengajuan(
+                    amount,
+                    tenor,
+                    "Bearer $token"
+                )
 
-        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-        builder.setTitle("Konfirmasi Pengajuan")
-            .setMessage(message)
-            .setPositiveButton("Ya") { _, _ ->
-                submitPengajuan(latitude, longitude)
+                val bungaFormatted = if (preview.bunga % 1 == 0.0) {
+                    preview.bunga.toInt().toString()
+                } else {
+                    preview.bunga.toString()
+                }
+
+                val message = """
+                Apakah data Anda sudah benar untuk mengajukan pinjaman?
+
+                Jumlah Pinjaman : ${formatRupiah(preview.amount)}
+                Tenor           : ${preview.tenor} bulan
+                Bunga           : $bungaFormatted%
+                Angsuran        : ${formatRupiah(preview.angsuran)}
+                Biaya Admin     : ${formatRupiah(preview.biayaAdmin)}
+                Dana Diterima   : ${formatRupiah(preview.totalDanaDidapat)}
+            """.trimIndent()
+
+                AlertDialog.Builder(this@PengajuanActivity) // Ganti jika bukan di MainActivity
+                    .setTitle("Konfirmasi Pengajuan")
+                    .setMessage(message)
+                    .setPositiveButton("Ya") { _, _ ->
+                        submitPengajuan(latitude, longitude)
+                    }
+                    .setNegativeButton("Batal", null)
+                    .show()
+
+            } catch (e: Exception) {
+                Toast.makeText(this@PengajuanActivity, "Gagal mengambil data preview: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Batal", null)
-            .show()
+        }
     }
+
 
     private fun formatRupiah(amount: Number): String {
         val localeID = Locale("in", "ID")

@@ -13,20 +13,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Inisialisasi Firebase
-        FirebaseApp.initializeApp(this)
-
-        // ✅ Ambil token FCM
-        FirebaseMessaging.getInstance().token
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val token = task.result
-                    Log.d("FCM_TOKEN", "Token: $token")
-                } else {
-                    Log.e("FCM_TOKEN", "Gagal ambil token", task.exception)
-                }
-            }
-
         // Redirect ke LoginActivity
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
