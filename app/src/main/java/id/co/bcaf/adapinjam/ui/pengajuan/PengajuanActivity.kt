@@ -205,7 +205,6 @@ class PengajuanActivity : AppCompatActivity() {
         }
     }
 
-
     private fun formatRupiah(amount: Number): String {
         val localeID = Locale("in", "ID")
         val numberFormat = NumberFormat.getNumberInstance(localeID)

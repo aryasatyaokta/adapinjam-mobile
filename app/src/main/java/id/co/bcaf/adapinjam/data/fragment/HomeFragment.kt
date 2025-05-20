@@ -4,12 +4,16 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +24,7 @@ import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
 import id.co.bcaf.adapinjam.ui.adddetailcustomer.AddDetail
 import id.co.bcaf.adapinjam.ui.historypengajuan.HistoryPengajuanActivity
+import id.co.bcaf.adapinjam.ui.login.LoginActivity
 import id.co.bcaf.adapinjam.ui.password.UpdatePasswordActivity
 import id.co.bcaf.adapinjam.ui.pengajuan.PengajuanActivity
 import id.co.bcaf.adapinjam.ui.plafon.PlafonAdapter
@@ -43,6 +48,24 @@ class HomeFragment : Fragment() {
     private lateinit var rvAllPlafon: RecyclerView
     private lateinit var plafonAdapter: PlafonAdapter
 
+    private lateinit var layoutSimulasi: LinearLayout
+    private lateinit var etAmountSimulasi: EditText
+    private lateinit var etTenorSimulasi: EditText
+    private lateinit var btnSubmitSimulasi: Button
+    private lateinit var tvHasilSimulasi: TextView
+
+    private lateinit var bgHomeCard: CardView
+    private lateinit var hutangCard: CardView
+    private lateinit var ajukanCard: CardView
+    private lateinit var historyText: TextView
+    private lateinit var viewAllText: TextView
+    private lateinit var totalPinjamanCard: CardView
+    private lateinit var labelDaftarPlafon2: TextView
+
+    private lateinit var labelDaftarPlafon: TextView
+    private lateinit var ajukanCard2: CardView
+    private lateinit var rvAllPlafon2: RecyclerView
+
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,6 +82,23 @@ class HomeFragment : Fragment() {
         tvTotalPinjaman = view.findViewById(R.id.totalPengajuanHome)
         tvTotalTenor = view.findViewById(R.id.totalTenorPengajuanHome)
 
+        layoutSimulasi = view.findViewById(R.id.layoutSimulasi)
+        etAmountSimulasi = view.findViewById(R.id.etAmountSimulasi)
+        etTenorSimulasi = view.findViewById(R.id.etTenorSimulasi)
+        btnSubmitSimulasi = view.findViewById(R.id.btnSubmitSimulasi)
+        tvHasilSimulasi = view.findViewById(R.id.tvHasilSimulasi)
+
+        bgHomeCard = view.findViewById(R.id.bgHomeCard)
+        hutangCard = view.findViewById(R.id.hutangCard)
+        ajukanCard = view.findViewById(R.id.ajukanCard)
+        historyText = view.findViewById(R.id.historyText)
+        viewAllText = view.findViewById(R.id. viewAllText)
+        totalPinjamanCard = view.findViewById(R.id.totalPinjamanCard)
+        labelDaftarPlafon2 = view.findViewById(R.id.labelDaftarPlafon2)
+        labelDaftarPlafon = view.findViewById(R.id.labelDaftarPlafon)
+
+        ajukanCard2 = view.findViewById(R.id.ajukanCard2)
+        rvAllPlafon2 = view.findViewById(R.id.rvAllPlafon2)
 
         rvAllPlafon = view.findViewById(R.id.rvAllPlafon)
         rvAllPlafon.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -76,12 +116,124 @@ class HomeFragment : Fragment() {
             }
         }
 
+        val btnAjukanPinjaman2: Button = view.findViewById(R.id.btnAjukanPinjaman2)
+        btnAjukanPinjaman2.setOnClickListener {
+            checkProfileBeforeAction {
+                val intent = Intent(requireContext(), PengajuanActivity::class.java)
+                startActivity(intent)
+            }
+        }
+
         val viewAll = view.findViewById<TextView>(R.id.viewAllText)
         viewAll.setOnClickListener {
             val intent = Intent(requireContext(), HistoryPengajuanActivity::class.java)
             startActivity(intent)
         }
 
+        val token = sharedPrefManager.getToken()
+        val hasToken = !token.isNullOrEmpty()
+
+        if (hasToken) {
+            layoutSimulasi.visibility = View.GONE
+
+            loadAllPlafon()
+            loadPlafon()
+            loadSisaHutang()
+            loadPengajuanTerbaru()
+        } else {
+            // Tampilkan hanya yang diperlukan
+            loadAllPlafon()
+            layoutSimulasi.visibility = View.VISIBLE
+            ajukanCard2.visibility = View.VISIBLE
+            rvAllPlafon2.visibility = View.VISIBLE
+            labelDaftarPlafon2.visibility = View.VISIBLE
+
+            bgHomeCard.visibility = View.GONE
+            hutangCard.visibility = View.GONE
+            ajukanCard.visibility = View.GONE
+            historyText.visibility = View.GONE
+            viewAllText.visibility = View.GONE
+            totalPinjamanCard.visibility = View.GONE
+            labelDaftarPlafon.visibility = View.GONE
+
+            tvJenisPlafon.text = "-"
+            tvJumlahPlafon.text = "Rp -"
+            tvSisaPlafon.text = "Rp -"
+            tvSisaHutang.text = "Rp -"
+            tvTotalPinjaman.text = "Rp -"
+            tvTotalTenor.text = "- Bulan"
+        }
+
+        var current = ""
+
+        etAmountSimulasi.addTextChangedListener(object : TextWatcher {
+           override fun afterTextChanged(s: Editable?) {
+                if (s.toString() != current) {
+                    etAmountSimulasi.removeTextChangedListener(this)
+
+                    val cleanString = s.toString().replace("[Rp,.\\s]".toRegex(), "")
+                    if (cleanString.isNotEmpty()) {
+                        val parsed = cleanString.toDouble()
+                        val formatted = formatRupiah(parsed)
+
+                        current = formatted
+                        etAmountSimulasi.setText(formatted)
+                        etAmountSimulasi.setSelection(formatted.length)
+                    } else {
+                        current = ""
+                    }
+
+                    etAmountSimulasi.addTextChangedListener(this)
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        btnSubmitSimulasi.setOnClickListener {
+            val amountInput = etAmountSimulasi.text.toString().replace("[^\\d]".toRegex(), "")
+            val amount = amountInput.toDoubleOrNull()
+            val tenor = etTenorSimulasi.text.toString().toIntOrNull()
+
+            if (amount == null || tenor == null) {
+                Toast.makeText(requireContext(), "Masukkan jumlah dan tenor yang valid", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+                try {
+                    val response = withContext(Dispatchers.IO) {
+                        RetrofitClient.apiService.getSimulasiPengajuan(amount, tenor)
+                    }
+
+                    if (response.isSuccessful && response.body() != null) {
+                        val result = response.body()!!
+                        val formattedAmount = formatRupiah(result.amount)
+                        val angsuran = formatRupiah(result.angsuran)
+                        val totalPembayaran = formatRupiah(result.totalPembayaran)
+                        val admin = formatRupiah(result.biayaAdmin)
+                        val danaCair = formatRupiah(result.danaCair)
+
+                        tvHasilSimulasi.text = """
+                    Simulasi Pinjaman
+
+                    Jumlah Pinjaman : $formattedAmount
+                    Tenor           : ${result.tenor} bulan
+                    Bunga           : ${result.bunga}%
+                    Angsuran / bln  : $angsuran
+                    Total Bayar     : $totalPembayaran
+
+                    Biaya Admin     : $admin
+                    Dana Diterima   : $danaCair
+                """.trimIndent()
+                    } else {
+                        tvHasilSimulasi.text = "❌ Gagal mengambil data simulasi"
+                    }
+                } catch (e: Exception) {
+                    tvHasilSimulasi.text = "⚠️ Error: ${e.message}"
+                }
+            }
+        }
         return view
     }
 
@@ -155,12 +307,24 @@ class HomeFragment : Fragment() {
         }
     }
 
-
     private fun checkProfileBeforeAction(onProfileComplete: (() -> Unit)? = null) {
         val token = sharedPrefManager.getToken()
+        Log.d("TOKEN_CHECK", "Token = $token")
 
         if (token.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
+            AlertDialog.Builder(requireContext())
+                .setTitle("Login Diperlukan")
+                .setMessage("Silakan login terlebih dahulu untuk melanjutkan.")
+                .setPositiveButton("Ke Page Login") { _, _ ->
+                    val intent = Intent(requireContext(), LoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                }
+                .setNegativeButton("Tidak") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .setCancelable(false)
+                .show()
             return
         }
 
@@ -202,19 +366,17 @@ class HomeFragment : Fragment() {
         }
     }
 
+
     private fun loadAllPlafon() {
         lifecycleScope.launch {
             try {
                 val token = sharedPrefManager.getToken()
                 if (token.isNullOrEmpty()) {
-                    if (isAdded) {
-                        Toast.makeText(requireContext(), "Token tidak ditemukan", Toast.LENGTH_SHORT).show()
-                    }
                     return@launch
                 }
 
                 val response = withContext(Dispatchers.IO) {
-                    RetrofitClient.apiService.getAllPlafon("Bearer $token")
+                    RetrofitClient.apiService.getAllPlafon()
                 }
 
                 if (response.isSuccessful && response.body() != null) {

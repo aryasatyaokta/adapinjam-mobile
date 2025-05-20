@@ -63,7 +63,7 @@ interface ApiService {
     suspend fun logout(@Header("Authorization") token: String): Response<Void>
 
     @GET("api/v1/plafon/all")
-    suspend fun getAllPlafon(@Header("Authorization") token: String): Response<List<Plafon>>
+    suspend fun getAllPlafon(): Response<List<Plafon>>
 
     @GET("api/v1/pengajuan/history-customer")
     suspend fun getPengajuanHistory(@Header("Authorization") token: String): List<PengajuanHistoryResponse>
@@ -97,5 +97,11 @@ interface ApiService {
         @Query("tenor") tenor: Int,
         @Header("Authorization") token: String
     ): PreviewResponse
+
+    @GET("api/v1/pengajuan/simulasi")
+    suspend fun getSimulasiPengajuan(
+        @Query("amount") amount: Double,
+        @Query("tenor") tenor: Int
+    ): Response<SimulasiPengajuanResponse>
 
 }
