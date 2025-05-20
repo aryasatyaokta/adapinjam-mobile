@@ -61,6 +61,7 @@ class HomeFragment : Fragment() {
     private lateinit var viewAllText: TextView
     private lateinit var totalPinjamanCard: CardView
     private lateinit var labelDaftarPlafon2: TextView
+    private lateinit var cardHasilSimulasi: CardView
 
     private lateinit var labelDaftarPlafon: TextView
     private lateinit var ajukanCard2: CardView
@@ -96,6 +97,7 @@ class HomeFragment : Fragment() {
         totalPinjamanCard = view.findViewById(R.id.totalPinjamanCard)
         labelDaftarPlafon2 = view.findViewById(R.id.labelDaftarPlafon2)
         labelDaftarPlafon = view.findViewById(R.id.labelDaftarPlafon)
+        cardHasilSimulasi = view.findViewById(R.id.cardHasilSimulasi)
 
         ajukanCard2 = view.findViewById(R.id.ajukanCard2)
         rvAllPlafon2 = view.findViewById(R.id.rvAllPlafon2)
@@ -214,26 +216,31 @@ class HomeFragment : Fragment() {
                         val admin = formatRupiah(result.biayaAdmin)
                         val danaCair = formatRupiah(result.danaCair)
 
-                        tvHasilSimulasi.text = """
-                    Simulasi Pinjaman
-
+                        val hasilText = """
                     Jumlah Pinjaman : $formattedAmount
-                    Tenor           : ${result.tenor} bulan
-                    Bunga           : ${result.bunga}%
-                    Angsuran / bln  : $angsuran
-                    Total Bayar     : $totalPembayaran
-
-                    Biaya Admin     : $admin
-                    Dana Diterima   : $danaCair
+                    Tenor                      : ${result.tenor} bulan
+                    Bunga                     : ${result.bunga}%
+                    
+                    Angsuran / bln      : $angsuran
+                    Total Bayar            : $totalPembayaran
+                    
+                    Biaya Admin          : $admin
+                    Dana Diterima       : $danaCair
                 """.trimIndent()
+
+                        tvHasilSimulasi.text = hasilText
+                        cardHasilSimulasi.visibility = View.VISIBLE
                     } else {
                         tvHasilSimulasi.text = "❌ Gagal mengambil data simulasi"
+                        cardHasilSimulasi.visibility = View.VISIBLE
                     }
                 } catch (e: Exception) {
                     tvHasilSimulasi.text = "⚠️ Error: ${e.message}"
+                    cardHasilSimulasi.visibility = View.VISIBLE
                 }
             }
         }
+
         return view
     }
 
@@ -366,14 +373,10 @@ class HomeFragment : Fragment() {
         }
     }
 
-
     private fun loadAllPlafon() {
         lifecycleScope.launch {
             try {
-                val token = sharedPrefManager.getToken()
-                if (token.isNullOrEmpty()) {
-                    return@launch
-                }
+                val token = sharedPrefManager.getToken()  // Dapat token, tapi tetap lanjut meski null
 
                 val response = withContext(Dispatchers.IO) {
                     RetrofitClient.apiService.getAllPlafon()
@@ -400,6 +403,8 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
+
 
     private fun formatRupiah(amount: Double): String {
         val localeID = Locale("in", "ID")

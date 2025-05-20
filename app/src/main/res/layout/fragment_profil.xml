@@ -53,6 +53,44 @@
             android:layout_height="550dp"
             android:background="@android:color/white">
 
+            <LinearLayout
+                android:id="@+id/btnLogin"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                android:paddingVertical="30dp"
+                android:weightSum="1">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_login"
+                    android:tint="#003E9A" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="16dp"
+                    android:text="Login"
+                    android:textSize="16sp"
+                    android:textColor="#003E9A" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:tint="#003E9A" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/lineTop"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#DDDDDD" />
+
             <!-- Profil Saya -->
             <LinearLayout
                 android:id="@+id/btnProfilSaya"

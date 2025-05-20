@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import id.co.bcaf.adapinjam.R
@@ -26,6 +27,9 @@ class ProfilFragment : Fragment() {
 
     private lateinit var sharedPrefManager: SharedPrefManager
 
+    private lateinit var btnLoginProfil : LinearLayout
+    private lateinit var lineTop : View
+
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,6 +37,25 @@ class ProfilFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_profil, container, false)
         sharedPrefManager = SharedPrefManager(requireContext())
+
+        btnLoginProfil = view.findViewById(R.id.btnLogin)
+        lineTop = view.findViewById(R.id.lineTop)
+
+        btnLoginProfil.setOnClickListener {
+            context?.let {
+                AlertDialog.Builder(it)
+                    .setTitle("Login Diperlukan")
+                    .setMessage("Silakan login terlebih dahulu untuk melanjutkan.")
+                    .setPositiveButton("Ke Page Login") { _, _ ->
+                        val intent = Intent(it, LoginActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                    }
+                    .setNegativeButton("Batal", null)
+                    .setCancelable(false)
+                    .show()
+            }
+        }
 
         val btnLogout = view.findViewById<LinearLayout>(R.id.btnLogout)
         btnLogout.setOnClickListener {
@@ -48,6 +71,23 @@ class ProfilFragment : Fragment() {
         val btnProfilSaya = view.findViewById<LinearLayout>(R.id.btnProfilSaya)
         btnProfilSaya.setOnClickListener {
             checkProfileBeforeOpenDetail()
+        }
+
+        val token = sharedPrefManager.getToken()
+        val hasToken = !token.isNullOrEmpty()
+
+        if (hasToken) {
+            btnUpdatePass.visibility = View.VISIBLE
+            btnProfilSaya.visibility = View.VISIBLE
+            btnLogout.visibility = View.VISIBLE
+            btnLoginProfil.visibility = View.GONE
+            lineTop.visibility = View.GONE
+        } else {
+            btnUpdatePass.visibility = View.GONE
+            btnProfilSaya.visibility = View.GONE
+            btnLogout.visibility = View.GONE
+            btnLoginProfil.visibility = View.VISIBLE
+            lineTop.visibility = View.VISIBLE
         }
 
         return view
