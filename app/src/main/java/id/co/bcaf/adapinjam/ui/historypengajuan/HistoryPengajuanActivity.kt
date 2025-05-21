@@ -6,52 +6,54 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import id.co.bcaf.adapinjam.R
+import id.co.bcaf.adapinjam.data.fragment.HistoryFragment
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
 import kotlinx.coroutines.launch
 
 class HistoryPengajuanActivity : AppCompatActivity() {
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var tvEmptyState: TextView
-    private lateinit var sharedPrefManager: SharedPrefManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history_pengajuan)
-
-        recyclerView = findViewById(R.id.rvRiwayat)
-        tvEmptyState = findViewById(R.id.tvEmptyState)
-        recyclerView.layoutManager = LinearLayoutManager(this)
 
         val btnBack = findViewById<ImageView>(R.id.btnBack)
         btnBack.setOnClickListener {
             finish()
         }
 
+        val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
+        val viewPager = findViewById<ViewPager2>(R.id.viewPager)
 
-        sharedPrefManager = SharedPrefManager(this)
-        val token = sharedPrefManager.getToken()
+        val adapter = object : FragmentStateAdapter(this) {
+            private val statusFilters = listOf(
+                Pair("Disetujui", "DISBURSEMENT"),
+                Pair("Direview", "REVIEW"),
+                Pair("Ditolak", "REJECT")
+            )
 
-        if (!token.isNullOrEmpty()) {
-            lifecycleScope.launch {
-                try {
-                    val data = RetrofitClient.apiService.getPengajuanHistory("Bearer $token")
-                    if (data.isNotEmpty()) {
-                        recyclerView.adapter = HistoryPengajuanAdapter(data)
-                        tvEmptyState.visibility = View.GONE
-                    } else {
-                        tvEmptyState.visibility = View.VISIBLE
-                    }
-                } catch (e: Exception) {
-                    tvEmptyState.visibility = View.VISIBLE
-                }
+            override fun getItemCount() = statusFilters.size
+            override fun createFragment(position: Int): Fragment {
+                return HistoryFragment(statusFilters[position].second)
             }
-        } else {
-            tvEmptyState.visibility = View.VISIBLE
         }
+
+        viewPager.adapter = adapter
+
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            when (position) {
+                0 -> tab.text = "Disetujui"
+                1 -> tab.text = "Direview"
+                2 -> tab.text = "Ditolak"
+            }
+        }.attach()
     }
 }

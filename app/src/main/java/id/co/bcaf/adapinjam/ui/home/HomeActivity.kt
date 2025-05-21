@@ -9,10 +9,6 @@ import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.fragment.HistoryPinjamanFragment
 import id.co.bcaf.adapinjam.data.fragment.HomeFragment
 import id.co.bcaf.adapinjam.data.fragment.ProfilFragment
-import id.co.bcaf.adapinjam.data.fragment.ProfilSayaFragment
-import id.co.bcaf.adapinjam.data.fragment.RiwayatFragment
-import id.co.bcaf.adapinjam.data.utils.SharedPrefManager
-import id.co.bcaf.adapinjam.ui.login.LoginActivity
 
 class HomeActivity : AppCompatActivity() {
 
