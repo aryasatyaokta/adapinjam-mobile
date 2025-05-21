@@ -42,7 +42,7 @@ class PlafonActivity : AppCompatActivity() {
                 }
 
                 val response = withContext(Dispatchers.IO) {
-                    apiService.getAllPlafon("Bearer $token")
+                    apiService.getAllPlafon()
                 }
 
                 if (response.isSuccessful && response.body() != null) {

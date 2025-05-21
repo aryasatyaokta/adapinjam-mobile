@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieAnimationView
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
@@ -29,6 +30,7 @@ import id.co.bcaf.adapinjam.ui.password.UpdatePasswordActivity
 import id.co.bcaf.adapinjam.ui.pengajuan.PengajuanActivity
 import id.co.bcaf.adapinjam.ui.plafon.PlafonAdapter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
@@ -67,6 +69,8 @@ class HomeFragment : Fragment() {
     private lateinit var ajukanCard2: CardView
     private lateinit var rvAllPlafon2: RecyclerView
 
+    private lateinit var loadingAnimation: LottieAnimationView
+
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -101,6 +105,8 @@ class HomeFragment : Fragment() {
 
         ajukanCard2 = view.findViewById(R.id.ajukanCard2)
         rvAllPlafon2 = view.findViewById(R.id.rvAllPlafon2)
+
+        loadingAnimation = view.findViewById(R.id.loadingAnimation)
 
         rvAllPlafon = view.findViewById(R.id.rvAllPlafon)
         rvAllPlafon.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -137,6 +143,9 @@ class HomeFragment : Fragment() {
 
         if (hasToken) {
             layoutSimulasi.visibility = View.GONE
+            rvAllPlafon2.visibility = View.GONE
+            ajukanCard2.visibility = View.GONE
+            labelDaftarPlafon2.visibility = View.GONE
 
             loadAllPlafon()
             loadPlafon()
@@ -157,6 +166,7 @@ class HomeFragment : Fragment() {
             viewAllText.visibility = View.GONE
             totalPinjamanCard.visibility = View.GONE
             labelDaftarPlafon.visibility = View.GONE
+            rvAllPlafon.visibility = View.GONE
 
             tvJenisPlafon.text = "-"
             tvJumlahPlafon.text = "Rp -"
@@ -201,12 +211,19 @@ class HomeFragment : Fragment() {
                 Toast.makeText(requireContext(), "Masukkan jumlah dan tenor yang valid", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            loadingAnimation.setAnimation(R.raw.loading_animation)
+            loadingAnimation.playAnimation()
+            loadingAnimation.visibility = View.VISIBLE
 
             lifecycleScope.launch {
                 try {
                     val response = withContext(Dispatchers.IO) {
                         RetrofitClient.apiService.getSimulasiPengajuan(amount, tenor)
                     }
+
+                    delay(2000)
+                    loadingAnimation.cancelAnimation()
+                    loadingAnimation.visibility = View.GONE
 
                     if (response.isSuccessful && response.body() != null) {
                         val result = response.body()!!
