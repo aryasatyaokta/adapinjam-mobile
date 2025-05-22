@@ -100,6 +100,7 @@ interface ApiService {
 
     @GET("api/v1/pengajuan/simulasi")
     suspend fun getSimulasiPengajuan(
+        @Query("jenisPlafon") jenisPlafon: String,
         @Query("amount") amount: Double,
         @Query("tenor") tenor: Int
     ): Response<SimulasiPengajuanResponse>

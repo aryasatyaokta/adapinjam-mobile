@@ -1,7 +1,9 @@
 package id.co.bcaf.adapinjam.data.fragment
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +24,7 @@ import id.co.bcaf.adapinjam.ui.password.UpdatePasswordActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.URLEncoder
 
 class ProfilFragment : Fragment() {
 
@@ -73,6 +76,32 @@ class ProfilFragment : Fragment() {
             checkProfileBeforeOpenDetail()
         }
 
+        val btnBantuan = view.findViewById<LinearLayout>(R.id.btnBantuan)
+        btnBantuan.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Konfirmasi Bantuan")
+                .setMessage("Apakah Anda yakin membutuhkan bantuan?")
+                .setPositiveButton("Ya") { _, _ ->
+                    val phoneNumber = "6281646886785" // format internasional TANPA +
+                    val message = "Halo, saya butuh bantuan dengan aplikasi Adapinjam"
+                    val url = "https://api.whatsapp.com/send?phone=$phoneNumber&text=${URLEncoder.encode(message, "UTF-8")}"
+
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setPackage("com.whatsapp") // memastikan intent langsung ke WhatsApp
+                    intent.data = Uri.parse(url)
+
+                    try {
+                        startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        Toast.makeText(requireContext(), "WhatsApp tidak ditemukan di perangkat ini", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Batal", null)
+                .show()
+        }
+
+
+
         val token = sharedPrefManager.getToken()
         val hasToken = !token.isNullOrEmpty()
 
@@ -80,12 +109,14 @@ class ProfilFragment : Fragment() {
             btnUpdatePass.visibility = View.VISIBLE
             btnProfilSaya.visibility = View.VISIBLE
             btnLogout.visibility = View.VISIBLE
+            btnBantuan.visibility = View.VISIBLE
             btnLoginProfil.visibility = View.GONE
             lineTop.visibility = View.GONE
         } else {
             btnUpdatePass.visibility = View.GONE
             btnProfilSaya.visibility = View.GONE
             btnLogout.visibility = View.GONE
+            btnBantuan.visibility = View.GONE
             btnLoginProfil.visibility = View.VISIBLE
             lineTop.visibility = View.VISIBLE
         }
