@@ -524,9 +524,9 @@
                 android:id="@+id/spinnerJenisPlafon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:spinnerMode="dropdown"
-                />
+                android:layout_marginTop="16dp"
+                android:background="@drawable/edit_text_spinner_bg"
+                android:spinnerMode="dropdown"/>
 
             <EditText
                 android:id="@+id/etAmountSimulasi"
