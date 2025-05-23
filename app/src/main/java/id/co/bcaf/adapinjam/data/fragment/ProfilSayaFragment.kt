@@ -76,6 +76,7 @@ class ProfilSayaFragment : Fragment() {
         sharedPrefManager = SharedPrefManager(requireContext())
         profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
 
+
         nameProfile = view.findViewById(R.id.nameProfile)
         emailProfile = view.findViewById(R.id.emailProfile)
 

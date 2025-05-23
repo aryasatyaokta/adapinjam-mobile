@@ -45,6 +45,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <LinearLayout
+                android:id="@+id/layoutPlafonInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvJudulPlafon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sisa Plafon Anda"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="#333333" />
+
+                <TextView
+                    android:id="@+id/tvSisaPlafon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Rp -"
+                    android:textSize="18sp"
+                    android:textColor="#2E7D32"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="12dp" />
+            </LinearLayout>
+
             <EditText
                 android:id="@+id/etJumlahPinjaman"
                 android:layout_width="match_parent"
@@ -59,15 +86,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="16dp" />
 
-            <EditText
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/etJumlahTenor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Jumlah Tenor (bulan)"
-                android:inputType="number"
-                android:backgroundTint="@color/black"
-                android:textColor="@color/black"
-                android:textColorHint="@color/blue_start" />
+                android:hint="Pilih tenor pinjaman" />
 
             <View
                 android:layout_width="match_parent"

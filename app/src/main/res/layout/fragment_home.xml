@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".data.fragment.HomeFragment"
     android:padding="16dp">
@@ -63,11 +64,10 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#0D47A1" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Dapatkan bunga spesial hanya 5% untuk pengajuan pertama kamu! 💸"
+                    android:text="Dapatkan bunga spesial hingga 3% untuk pengajuan kamu di kami! 💸"
                     android:textSize="14sp"
                     android:textColor="#0D47A1"
                     android:layout_marginTop="4dp" />

@@ -301,13 +301,21 @@ class HomeFragment : Fragment() {
 
                 if (response.isSuccessful) {
                     val userProfile = response.body()
+
                     val jenisPlafon = userProfile?.plafon?.jenisPlafon ?: "-"
                     val jumlahPlafonValue = (userProfile?.plafon?.jumlahPlafon as? Number)?.toDouble() ?: 0.0
+                    val sisaPlafonValue = when (val plafon = userProfile?.sisaPlafon) {
+                        is Number -> plafon.toDouble()
+                        is String -> plafon.toDoubleOrNull() ?: 0.0
+                        else -> 0.0
+                    }
+
                     val formattedPlafon = formatRupiah(jumlahPlafonValue)
+                    val formattedSisa = formatRupiah(sisaPlafonValue)
 
                     tvJenisPlafon.text = jenisPlafon
                     tvJumlahPlafon.text = formattedPlafon
-                    tvSisaPlafon.text = if (jumlahPlafonValue > 0) formattedPlafon else "Rp -"
+                    tvSisaPlafon.text = if (sisaPlafonValue > 0) formattedSisa else "Rp -"
 
                     fadeIn(tvJenisPlafon)
                     fadeIn(tvJumlahPlafon)

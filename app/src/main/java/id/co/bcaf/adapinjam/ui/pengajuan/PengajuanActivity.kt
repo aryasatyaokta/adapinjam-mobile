@@ -6,8 +6,11 @@ import android.location.Location
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AlertDialog
@@ -35,12 +38,18 @@ class PengajuanActivity : AppCompatActivity() {
     private lateinit var etJumlahTenor: EditText
     private lateinit var btnAjukan: Button
     private lateinit var sharedPref: SharedPrefManager
+    private lateinit var tvSisaPlafon: TextView
+
+    private var allowedTenors: List<Int> = listOf()
+    private var maxPlafon: Double = 0.0
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pengajuan)
+
+        tvSisaPlafon = findViewById(R.id.tvSisaPlafon)
 
         etJumlahPinjaman = findViewById(R.id.etJumlahPinjaman)
         etJumlahPinjaman.addTextChangedListener(object : TextWatcher {
@@ -74,6 +83,8 @@ class PengajuanActivity : AppCompatActivity() {
         etJumlahTenor = findViewById(R.id.etJumlahTenor)
         btnAjukan = findViewById(R.id.btnAjukan)
         sharedPref = SharedPrefManager(this)
+
+        loadSisaPlafon()
 
         btnAjukan.setOnClickListener {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -115,6 +126,16 @@ class PengajuanActivity : AppCompatActivity() {
 
         if (amount == null || tenor == null) {
             Toast.makeText(this, "Input tidak valid", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (amount > maxPlafon) {
+            Toast.makeText(this, "Jumlah pinjaman melebihi plafon yang tersedia", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!allowedTenors.contains(tenor)) {
+            Toast.makeText(this, "Tenor tidak sesuai dengan jenis plafon Anda", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -209,6 +230,53 @@ class PengajuanActivity : AppCompatActivity() {
         val localeID = Locale("in", "ID")
         val numberFormat = NumberFormat.getNumberInstance(localeID)
         return "Rp ${numberFormat.format(amount)}"
+    }
+
+    private fun loadSisaPlafon() {
+        val token = sharedPref.getToken()
+
+        if (token.isNullOrEmpty()) {
+            tvSisaPlafon.text = "Rp -"
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitClient.apiService.getCustomerProfile("Bearer $token")
+                }
+
+                if (response.isSuccessful) {
+                    val userProfile = response.body()
+                    val sisaPlafonValue = (userProfile?.sisaPlafon as? Number)?.toDouble() ?: 0.0
+                    val jenisPlafon = userProfile?.plafon?.jenisPlafon ?: "Default"
+
+                    // Tampilkan sisa plafon dan jenis plafon
+                    tvSisaPlafon.text = "Sisa Plafon (${jenisPlafon}): ${formatRupiah(sisaPlafonValue)}"
+
+                    // Atur placeholder jumlah pinjaman
+                    etJumlahPinjaman.hint = "Maksimal ${formatRupiah(sisaPlafonValue)}"
+
+                    // Tentukan opsi tenor berdasarkan jenis plafon
+                    val tenorOptions = when (jenisPlafon.lowercase(Locale.ROOT)) {
+                        "bronze" -> listOf(6, 9, 12, 15)
+                        "silver" -> listOf(9, 12, 15, 18)
+                        "gold" -> listOf(12, 15, 18, 21)
+                        "platinum" -> listOf(15, 18, 21, 24)
+                        else -> listOf(15, 18, 21, 24)
+                    }
+
+                    // Update input tenor (asumsi kamu sudah pakai AutoCompleteTextView)
+                    val tenorAdapter = ArrayAdapter(this@PengajuanActivity, android.R.layout.simple_dropdown_item_1line, tenorOptions)
+                    (etJumlahTenor as? AutoCompleteTextView)?.setAdapter(tenorAdapter)
+                    etJumlahTenor.hint = "Pilih tenor: ${tenorOptions.joinToString(", ")} bulan"
+                } else {
+                    tvSisaPlafon.text = "Rp -"
+                }
+            } catch (e: Exception) {
+                tvSisaPlafon.text = "Rp -"
+            }
+        }
     }
 
 }
