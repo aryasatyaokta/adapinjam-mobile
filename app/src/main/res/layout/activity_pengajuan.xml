@@ -67,20 +67,21 @@
                     android:layout_height="wrap_content"
                     android:text="Rp -"
                     android:textSize="18sp"
-                    android:textColor="#2E7D32"
+                    android:textColor="@color/blue_start"
                     android:paddingTop="4dp"
                     android:paddingBottom="12dp" />
             </LinearLayout>
 
             <EditText
                 android:id="@+id/etJumlahPinjaman"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:hint="Jumlah Pinjaman"
                 android:inputType="number"
-                android:backgroundTint="@color/black"
-                android:textColor="@color/black"
-                android:textColorHint="@color/blue_start" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_bg"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:layout_marginTop="15dp" />
 
             <View
                 android:layout_width="match_parent"
@@ -90,7 +91,10 @@
                 android:id="@+id/etJumlahTenor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Pilih tenor pinjaman" />
+                android:hint="Pilih Tenor"
+                android:inputType="none"
+                android:background="@drawable/jumlah_pinjaman_spinner"
+                android:textColor="@color/black"/>
 
             <View
                 android:layout_width="match_parent"

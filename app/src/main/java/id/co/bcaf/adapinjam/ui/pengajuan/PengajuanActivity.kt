@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
@@ -48,6 +49,11 @@ class PengajuanActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pengajuan)
+
+        val btnBack = findViewById<ImageView>(R.id.btnBack)
+        btnBack.setOnClickListener {
+            finish()
+        }
 
         tvSisaPlafon = findViewById(R.id.tvSisaPlafon)
 
@@ -255,7 +261,7 @@ class PengajuanActivity : AppCompatActivity() {
                     tvSisaPlafon.text = "Sisa Plafon (${jenisPlafon}): ${formatRupiah(sisaPlafonValue)}"
 
                     // Atur placeholder jumlah pinjaman
-                    etJumlahPinjaman.hint = "Maksimal ${formatRupiah(sisaPlafonValue)}"
+                    etJumlahPinjaman.hint = "Jumlah Pinjaman"
 
                     // Tentukan opsi tenor berdasarkan jenis plafon
                     val tenorOptions = when (jenisPlafon.lowercase(Locale.ROOT)) {
@@ -266,10 +272,12 @@ class PengajuanActivity : AppCompatActivity() {
                         else -> listOf(15, 18, 21, 24)
                     }
 
-                    // Update input tenor (asumsi kamu sudah pakai AutoCompleteTextView)
                     val tenorAdapter = ArrayAdapter(this@PengajuanActivity, android.R.layout.simple_dropdown_item_1line, tenorOptions)
-                    (etJumlahTenor as? AutoCompleteTextView)?.setAdapter(tenorAdapter)
-                    etJumlahTenor.hint = "Pilih tenor: ${tenorOptions.joinToString(", ")} bulan"
+                    (etJumlahTenor as? AutoCompleteTextView)?.apply {
+                        setAdapter(tenorAdapter)
+                        setOnClickListener { showDropDown() }
+                        hint = "Pilih tenor"
+                    }
                 } else {
                     tvSisaPlafon.text = "Rp -"
                 }

@@ -40,7 +40,7 @@ class BelumLunasPinjamanFragment : Fragment() {
             lifecycleScope.launch {
                 try {
                     val data = RetrofitClient.apiService.getHistoryPinjaman("Bearer $token")
-                    val belumLunasList = data.filter { it.lunas }
+                    val belumLunasList = data.filter { !it.lunas }
                     if (belumLunasList.isNotEmpty()) {
                         recyclerView.adapter = HistoryPinjamanAdapter(belumLunasList)
                         tvEmptyMessage.visibility = View.GONE
