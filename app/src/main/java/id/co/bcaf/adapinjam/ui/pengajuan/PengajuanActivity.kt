@@ -255,6 +255,7 @@ class PengajuanActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val userProfile = response.body()
                     val sisaPlafonValue = (userProfile?.sisaPlafon as? Number)?.toDouble() ?: 0.0
+                    maxPlafon = sisaPlafonValue  // ✅ Set plafon untuk validasi pengajuan
                     val jenisPlafon = userProfile?.plafon?.jenisPlafon ?: "Default"
 
                     // Tampilkan sisa plafon dan jenis plafon
@@ -264,7 +265,7 @@ class PengajuanActivity : AppCompatActivity() {
                     etJumlahPinjaman.hint = "Jumlah Pinjaman"
 
                     // Tentukan opsi tenor berdasarkan jenis plafon
-                    val tenorOptions = when (jenisPlafon.lowercase(Locale.ROOT)) {
+                    allowedTenors = when (jenisPlafon.lowercase(Locale.ROOT)) {
                         "bronze" -> listOf(6, 9, 12, 15)
                         "silver" -> listOf(9, 12, 15, 18)
                         "gold" -> listOf(12, 15, 18, 21)
@@ -272,7 +273,7 @@ class PengajuanActivity : AppCompatActivity() {
                         else -> listOf(15, 18, 21, 24)
                     }
 
-                    val tenorAdapter = ArrayAdapter(this@PengajuanActivity, android.R.layout.simple_dropdown_item_1line, tenorOptions)
+                    val tenorAdapter = ArrayAdapter(this@PengajuanActivity, android.R.layout.simple_dropdown_item_1line, allowedTenors)
                     (etJumlahTenor as? AutoCompleteTextView)?.apply {
                         setAdapter(tenorAdapter)
                         setOnClickListener { showDropDown() }
@@ -286,5 +287,4 @@ class PengajuanActivity : AppCompatActivity() {
             }
         }
     }
-
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import com.google.firebase.messaging.FirebaseMessaging
 import id.co.bcaf.adapinjam.data.model.LoginRequest
 import id.co.bcaf.adapinjam.data.model.LoginResponse
+import id.co.bcaf.adapinjam.data.network.ApiService
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import kotlinx.coroutines.launch
 import retrofit2.Response

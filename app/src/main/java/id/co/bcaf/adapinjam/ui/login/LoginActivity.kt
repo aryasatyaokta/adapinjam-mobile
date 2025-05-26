@@ -30,6 +30,7 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import id.co.bcaf.adapinjam.data.model.GoogleAuthRequest
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
 import id.co.bcaf.adapinjam.ui.adddetailcustomer.AddDetail
