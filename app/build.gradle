@@ -33,7 +33,12 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    kapt {
+        correctErrorTypes = true
+    }
+
 }
+
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.3.2'
@@ -52,6 +57,7 @@ dependencies {
 //    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+    implementation 'com.google.code.gson:gson:2.10.1'
     implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
@@ -63,14 +69,16 @@ dependencies {
     implementation 'com.github.dhaval2404:imagepicker:2.1'
     implementation "com.airbnb.android:lottie:6.0.0"
 
-    implementation 'com.google.dagger:hilt-android:2.51.1'
-    kapt 'com.google.dagger:hilt-compiler:2.51.1'
+    implementation 'com.google.dagger:hilt-android:2.46.1'
+    kapt 'com.google.dagger:hilt-compiler:2.46.1'
 
-//    implementation "androidx.room:room-runtime:2.6.1"
-//    kapt "androidx.room:room-compiler:2.6.1"
-//    implementation "androidx.room:room-ktx:2.6.1"
-
-
+    // Unit test
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation "org.mockito:mockito-core:5.0.0"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:5.1.0"
+    testImplementation "androidx.arch.core:core-testing:2.2.0" // untuk LiveData testing
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
+    implementation "org.jetbrains.kotlin:kotlin-test:2.0.21"
 
 
     //sebenernya mau saya kasih dependency injection dan room namun android gradle saya crash gais :(

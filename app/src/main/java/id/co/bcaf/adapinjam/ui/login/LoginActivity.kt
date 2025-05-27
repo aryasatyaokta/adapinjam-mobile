@@ -20,6 +20,7 @@ import android.app.ProgressDialog
 import android.graphics.Color
 import android.view.View
 import android.widget.LinearLayout
+import androidx.activity.viewModels
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -40,9 +41,10 @@ import id.co.bcaf.adapinjam.utils.setupPasswordToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var loginViewModel: LoginViewModel
+    private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var progressDialog: ProgressDialog
     private lateinit var sharedPrefManager: SharedPrefManager
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -52,7 +54,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
+//        loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
         sharedPrefManager = SharedPrefManager(this)
 
         val btnLogin = findViewById<Button>(R.id.btnLogin)
