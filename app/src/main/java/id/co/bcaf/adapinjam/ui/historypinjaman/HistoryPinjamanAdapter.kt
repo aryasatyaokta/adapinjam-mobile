@@ -7,10 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import id.co.bcaf.adapinjam.data.model.PinjamanHistoryResponse
+import id.co.bcaf.adapinjam.data.model.PinjamanWithJatuhTempo
 import java.text.NumberFormat
 import java.util.Locale
 
-class HistoryPinjamanAdapter(private val list: List<PinjamanHistoryResponse>) :
+class HistoryPinjamanAdapter(private val list: List<PinjamanWithJatuhTempo>) :
     RecyclerView.Adapter<HistoryPinjamanAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -23,6 +24,7 @@ class HistoryPinjamanAdapter(private val list: List<PinjamanHistoryResponse>) :
         val sisaTenor: TextView = view.findViewById(R.id.sisaTenor)
         val dana: TextView = view.findViewById(R.id.Dana)
         val admin: TextView = view.findViewById(R.id.Admin)
+        val jatuhTempo: TextView = view.findViewById(R.id.tanggalJatuhTempo)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,7 +36,8 @@ class HistoryPinjamanAdapter(private val list: List<PinjamanHistoryResponse>) :
     override fun getItemCount() = list.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val pinjaman = list[position]
+        val pinjamanWithJatuhTempo = list[position]
+        val pinjaman = pinjamanWithJatuhTempo.data
 
         holder.jumlah.text = formatRupiah(pinjaman.amount)
         holder.angsuran.text = formatRupiah(pinjaman.angsuran)
@@ -45,6 +48,7 @@ class HistoryPinjamanAdapter(private val list: List<PinjamanHistoryResponse>) :
         holder.sisaTenor.text = "${pinjaman.sisaTenor} Bulan"
         holder.dana.text = formatRupiah(pinjaman.totalDanaDidapat)
         holder.admin.text = formatRupiah(pinjaman.biayaAdmin)
+        holder.jatuhTempo.text = pinjamanWithJatuhTempo.jatuhTempo
     }
 
     private fun formatRupiah(amount: Double): String {
