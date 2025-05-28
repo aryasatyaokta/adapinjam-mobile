@@ -8,6 +8,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -21,6 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import id.co.bcaf.adapinjam.R
 import id.co.bcaf.adapinjam.data.model.UserCustomerResponse
 import id.co.bcaf.adapinjam.data.utils.RetrofitClient
@@ -54,7 +56,6 @@ class HomeFragment : Fragment() {
 
     private lateinit var layoutSimulasi: LinearLayout
     private lateinit var etAmountSimulasi: EditText
-    private lateinit var etTenorSimulasi: EditText
     private lateinit var btnSubmitSimulasi: Button
     private lateinit var tvHasilSimulasi: TextView
 
@@ -75,6 +76,7 @@ class HomeFragment : Fragment() {
     private lateinit var rvAllPlafon2: RecyclerView
 
     private lateinit var loadingAnimation: LottieAnimationView
+    private lateinit var etTenorSimulasi: MaterialAutoCompleteTextView
 
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
@@ -126,6 +128,44 @@ class HomeFragment : Fragment() {
         loadSisaHutang()
         loadPengajuanTerbaru()
 
+        // Mapping jenis plafon ke list tenor
+        val tenorOptionsMap = mapOf(
+            "Bronze" to listOf(6, 9, 12, 15),
+            "Silver" to listOf(9, 12, 15, 18),
+            "Gold" to listOf(12, 15, 18, 21),
+            "Platinum" to listOf(15, 18, 21, 24)
+        )
+
+        // Fungsi untuk update adapter tenor berdasarkan jenis plafon terpilih
+        fun updateTenorDropdown(jenisPlafon: String) {
+            val tenorList = tenorOptionsMap[jenisPlafon.toLowerCase().capitalize()] ?: listOf(15, 18, 21, 24)
+            val tenorStrings = tenorList.map { it.toString() }
+
+            val tenorAdapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_list_item_1,
+                tenorStrings
+            )
+            etTenorSimulasi.setAdapter(tenorAdapter)
+            etTenorSimulasi.setText("") // reset isi tenor saat jenis plafon berubah
+        }
+
+// Pasang listener pada spinnerJenisPlafon supaya tenor ter-update saat plafon dipilih
+        spinnerJenisPlafon.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedJenis = parent?.getItemAtPosition(position).toString()
+                updateTenorDropdown(selectedJenis)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Opsional: bisa dikosongkan
+            }
+        }
+
+// Inisialisasi tenor dropdown pertama kali saat view dibuat
+        val initialJenis = spinnerJenisPlafon.selectedItem?.toString() ?: "Bronze"
+        updateTenorDropdown(initialJenis)
+
+
         val adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -154,6 +194,10 @@ class HomeFragment : Fragment() {
         viewAll.setOnClickListener {
             val intent = Intent(requireContext(), HistoryPengajuanActivity::class.java)
             startActivity(intent)
+        }
+
+        etTenorSimulasi.setOnClickListener {
+            etTenorSimulasi.showDropDown()
         }
 
         val token = sharedPrefManager.getToken()
@@ -251,17 +295,19 @@ class HomeFragment : Fragment() {
                         val totalPembayaran = formatRupiah(result.totalPembayaran)
                         val admin = formatRupiah(result.biayaAdmin)
                         val danaCair = formatRupiah(result.danaCair)
+                        val bungaAsDouble = result.bunga
+                        val bungaFormatted = (bungaAsDouble / 100).toInt()  // Misal 500.0 / 100 = 5
 
                         val hasilText = """
                     Jumlah Pinjaman  : $formattedAmount
-                    Tenor            : ${result.tenor} bulan
-                    Bunga            : ${result.bunga}%
+                    Tenor                       : ${result.tenor} bulan
+                    Bunga                      : ${bungaFormatted}%
                     
-                    Angsuran / bln   : $angsuran
-                    Total Bayar      : $totalPembayaran
+                    Angsuran / bln       : $angsuran
+                    Total Bayar             : $totalPembayaran
                     
-                    Biaya Admin      : $admin
-                    Dana Diterima    : $danaCair
+                    Biaya Admin           : $admin
+                    Dana Diterima        : $danaCair
                 """.trimIndent()
 
                         tvHasilSimulasi.text = hasilText

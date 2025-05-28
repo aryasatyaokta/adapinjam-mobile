@@ -539,16 +539,18 @@
                 android:textSize="16sp"
                 android:layout_marginTop="15dp" />
 
-            <EditText
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/etTenorSimulasi"
-                android:hint="Tenor (bulan)"
-                android:inputType="number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_bg"
+                android:hint="Pilih Tenor"
+                android:inputType="none"
+                android:background="@drawable/edit_text_spinner_bg"
                 android:padding="12dp"
                 android:textSize="16sp"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="15dp"
+                android:textColor="@color/black" />
+
 
             <Button
                 android:id="@+id/btnSubmitSimulasi"

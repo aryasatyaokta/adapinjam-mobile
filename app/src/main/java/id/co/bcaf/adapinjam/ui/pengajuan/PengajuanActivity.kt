@@ -207,30 +207,39 @@ class PengajuanActivity : AppCompatActivity() {
                 }
 
                 val message = """
-                Apakah data Anda sudah benar untuk mengajukan pinjaman?
-
                 Jumlah Pinjaman : ${formatRupiah(preview.amount)}
-                Tenor           : ${preview.tenor} bulan
-                Bunga           : $bungaFormatted%
-                Angsuran        : ${formatRupiah(preview.angsuran)}
-                Biaya Admin     : ${formatRupiah(preview.biayaAdmin)}
-                Dana Diterima   : ${formatRupiah(preview.totalDanaDidapat)}
+                Tenor                      : ${preview.tenor} bulan
+                Bunga                     : $bungaFormatted%
+                Angsuran               : ${formatRupiah(preview.angsuran)}
+                Biaya Admin          : ${formatRupiah(preview.biayaAdmin)}
+                Dana Diterima       : ${formatRupiah(preview.totalDanaDidapat)}
             """.trimIndent()
 
-                AlertDialog.Builder(this@PengajuanActivity) // Ganti jika bukan di MainActivity
-                    .setTitle("Konfirmasi Pengajuan")
-                    .setMessage(message)
-                    .setPositiveButton("Ya") { _, _ ->
-                        submitPengajuan(latitude, longitude)
-                    }
-                    .setNegativeButton("Batal", null)
-                    .show()
+                val dialogView = layoutInflater.inflate(R.layout.dialog_konfirmasi_pengajuan, null)
+                val dialog = AlertDialog.Builder(this@PengajuanActivity)
+                    .setView(dialogView)
+                    .setCancelable(false)
+                    .create()
+
+                dialogView.findViewById<TextView>(R.id.tvMessage).text = message
+
+                dialogView.findViewById<Button>(R.id.btnCancel).setOnClickListener {
+                    dialog.dismiss()
+                }
+
+                dialogView.findViewById<Button>(R.id.btnConfirm).setOnClickListener {
+                    dialog.dismiss()
+                    submitPengajuan(latitude, longitude)
+                }
+
+                dialog.show()
 
             } catch (e: Exception) {
                 Toast.makeText(this@PengajuanActivity, "Gagal mengambil data preview: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     private fun formatRupiah(amount: Number): String {
         val localeID = Locale("in", "ID")
