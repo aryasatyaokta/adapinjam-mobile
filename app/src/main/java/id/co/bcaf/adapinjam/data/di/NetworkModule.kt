@@ -35,7 +35,7 @@ class NetworkModule {
     fun provideRetrofit(client: OkHttpClient): Retrofit {
         val gson = GsonBuilder().setLenient().create()
         return Retrofit.Builder()
-            .baseUrl("https://9680-180-252-160-224.ngrok-free.app/be/")
+            .baseUrl("https://006a-180-252-160-224.ngrok-free.app/be/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()

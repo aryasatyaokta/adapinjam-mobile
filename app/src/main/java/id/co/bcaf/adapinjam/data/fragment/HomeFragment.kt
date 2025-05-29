@@ -101,7 +101,6 @@ class HomeFragment : Fragment() {
         tvHasilSimulasi = view.findViewById(R.id.tvHasilSimulasi)
         spinnerJenisPlafon = view.findViewById(R.id.spinnerJenisPlafon)
 
-
         bgHomeCard = view.findViewById(R.id.bgHomeCard)
         hutangCard = view.findViewById(R.id.hutangCard)
         ajukanCard = view.findViewById(R.id.ajukanCard)
@@ -124,33 +123,11 @@ class HomeFragment : Fragment() {
         rvAllPlafon = view.findViewById(R.id.rvAllPlafon)
         rvAllPlafon.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
+        loadPlafonSpinner()
         loadPlafon()
         loadSisaHutang()
         loadPengajuanTerbaru()
 
-        // Mapping jenis plafon ke list tenor
-        val tenorOptionsMap = mapOf(
-            "Bronze" to listOf(6, 9, 12, 15),
-            "Silver" to listOf(9, 12, 15, 18),
-            "Gold" to listOf(12, 15, 18, 21),
-            "Platinum" to listOf(15, 18, 21, 24)
-        )
-
-        // Fungsi untuk update adapter tenor berdasarkan jenis plafon terpilih
-        fun updateTenorDropdown(jenisPlafon: String) {
-            val tenorList = tenorOptionsMap[jenisPlafon.toLowerCase().capitalize()] ?: listOf(15, 18, 21, 24)
-            val tenorStrings = tenorList.map { it.toString() }
-
-            val tenorAdapter = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_list_item_1,
-                tenorStrings
-            )
-            etTenorSimulasi.setAdapter(tenorAdapter)
-            etTenorSimulasi.setText("") // reset isi tenor saat jenis plafon berubah
-        }
-
-// Pasang listener pada spinnerJenisPlafon supaya tenor ter-update saat plafon dipilih
         spinnerJenisPlafon.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedJenis = parent?.getItemAtPosition(position).toString()
@@ -161,18 +138,8 @@ class HomeFragment : Fragment() {
             }
         }
 
-// Inisialisasi tenor dropdown pertama kali saat view dibuat
         val initialJenis = spinnerJenisPlafon.selectedItem?.toString() ?: "Bronze"
         updateTenorDropdown(initialJenis)
-
-
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            listOf("Bronze", "Silver", "Gold", "Platinum")
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerJenisPlafon.adapter = adapter
 
         val btnAjukanPinjaman: Button = view.findViewById(R.id.btnAjukanPinjaman)
         btnAjukanPinjaman.setOnClickListener {
@@ -557,6 +524,76 @@ class HomeFragment : Fragment() {
             .setDuration(duration)
             .setListener(null)
     }
+
+    private fun loadPlafonSpinner() {
+        lifecycleScope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitClient.apiService.getAllPlafon()
+                }
+
+                if (!isAdded) return@launch
+
+                if (response.isSuccessful && response.body() != null) {
+                    val plafonList = response.body()!!
+
+                    // Ambil hanya jenis plafon-nya untuk Spinner
+                    val jenisPlafonList = plafonList.map { it.jenisPlafon }
+
+                    val spinnerAdapter = ArrayAdapter(
+                        requireContext(),
+                        android.R.layout.simple_spinner_item,
+                        jenisPlafonList
+                    )
+                    spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    spinnerJenisPlafon.adapter = spinnerAdapter
+
+                    // Set default pilihan & update tenor
+                    if (jenisPlafonList.isNotEmpty()) {
+                        updateTenorDropdown(jenisPlafonList[0].toString())
+                    }
+
+                    // Set listener (kalau belum diset)
+                    spinnerJenisPlafon.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                            val selectedJenis = parent?.getItemAtPosition(position).toString()
+                            updateTenorDropdown(selectedJenis)
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {}
+                    }
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Gagal memuat jenis plafon", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun updateTenorDropdown(jenisPlafon: String) {
+        val defaultTenorList = listOf(15, 18, 21, 24)
+
+        val tenorOptionsMap = mapOf(
+            "Bronze" to listOf(6, 9, 12, 15),
+            "Silver" to listOf(9, 12, 15, 18),
+            "Gold" to listOf(12, 15, 18, 21),
+            "Platinum" to listOf(15, 18, 21, 24)
+        )
+
+        val normalizedPlafon = jenisPlafon.trim().capitalize()
+        val tenorList = tenorOptionsMap[normalizedPlafon] ?: defaultTenorList
+        val tenorStrings = tenorList.map { it.toString() }
+
+        val tenorAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_list_item_1,
+            tenorStrings
+        )
+        etTenorSimulasi.setAdapter(tenorAdapter)
+        etTenorSimulasi.setText("") // reset isi tenor saat jenis plafon berubah
+    }
+
+
+
 
 }
 
