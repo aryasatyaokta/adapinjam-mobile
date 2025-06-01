@@ -13,6 +13,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +35,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.FileOutputStream
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -71,6 +74,36 @@ class AddDetail : AppCompatActivity() {
         tanggalLahir.setOnClickListener {
             showDatePickerDialog()
         }
+
+        val gajiField = findViewById<EditText>(R.id.Gaji)
+
+        gajiField.addTextChangedListener(object : TextWatcher {
+            private var current = ""
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s.toString() != current) {
+                    gajiField.removeTextChangedListener(this)
+
+                    val cleanString = s.toString().replace("[Rp,.\\s]".toRegex(), "")
+                    val parsed = cleanString.toDoubleOrNull() ?: 0.0
+                    val localeID = Locale("in", "ID")
+                    val formatted = NumberFormat.getCurrencyInstance(localeID).apply {
+                        maximumFractionDigits = 0
+                    }.format(parsed)
+
+                    current = formatted
+                    gajiField.setText(formatted)
+                    gajiField.setSelection(formatted.length)
+
+                    gajiField.addTextChangedListener(this)
+                }
+            }
+        })
+
 
         findViewById<Button>(R.id.btnKtpPicker).setOnClickListener {
             ImagePicker.with(this)
@@ -189,7 +222,7 @@ class AddDetail : AppCompatActivity() {
             }
         }
 
-        val gaji = gajiStr.toIntOrNull() ?: 0
+        val gaji = gajiStr.replace("[Rp,.\\s]".toRegex(), "").toIntOrNull() ?: 0
 
         val customerRequest = UserCustomerRequest(
             nik = nik, tempatLahir = tempatLahir, tanggalLahir = tanggalLahirStr,
@@ -332,5 +365,19 @@ class AddDetail : AppCompatActivity() {
             Toast.makeText(this, "Izin kamera ditolak", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun formatRupiah(number: String): String {
+        return try {
+            val cleanString = number.replace("[Rp,.\\s]".toRegex(), "")
+            val parsed = cleanString.toDoubleOrNull() ?: 0.0
+            val localeID = Locale("in", "ID")
+            val formatter = NumberFormat.getCurrencyInstance(localeID)
+            formatter.maximumFractionDigits = 0
+            formatter.format(parsed)
+        } catch (e: Exception) {
+            "Rp 0"
+        }
+    }
+
 }
 

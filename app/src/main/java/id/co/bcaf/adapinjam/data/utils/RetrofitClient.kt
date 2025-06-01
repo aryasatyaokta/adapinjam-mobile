@@ -8,19 +8,18 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
-//    private const val BASE_URL = "http://35.223.1.74/be/"
-    private const val BASE_URL = "https://006a-180-252-160-224.ngrok-free.app/be/" // Ganti dengan URL API kamu
+    private const val BASE_URL = "http://34.58.106.240/be/"
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(60, TimeUnit.SECONDS) // Set connect timeout
-        .readTimeout(60, TimeUnit.SECONDS)    // Set read timeout
-        .writeTimeout(60 , TimeUnit.SECONDS)   // Set write timeout
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60 , TimeUnit.SECONDS)
         .build()
 
     val gson = GsonBuilder().setLenient().create()
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
-        .client(client) // Use custom client
+        .client(client)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 

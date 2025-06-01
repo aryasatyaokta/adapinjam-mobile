@@ -6,13 +6,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".data.fragment.HistoryPinjamanFragment">
 
-    <ImageView
+    <TextView
         android:id="@+id/btnBack"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_margin="16dp"
         android:contentDescription="Kembali"
-        app:srcCompat="@drawable/ic_icon_back"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

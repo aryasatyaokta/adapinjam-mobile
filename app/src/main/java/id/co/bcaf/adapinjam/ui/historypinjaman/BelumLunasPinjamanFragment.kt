@@ -79,7 +79,7 @@ class BelumLunasPinjamanFragment : Fragment() {
                     }
 
                 } catch (e: Exception) {
-                    tvEmptyMessage.text = "Gagal memuat data"
+                    tvEmptyMessage.text = "Tidak Ada Pinjaman"
                     tvEmptyMessage.visibility = View.VISIBLE
                 }
             }
